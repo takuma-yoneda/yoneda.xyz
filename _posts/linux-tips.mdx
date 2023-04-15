@@ -1,0 +1,83 @@
+---
+title: Linux tips
+date: April 12th 2023
+---
+
+## Mounting a remote NFS directory
+- [Arch Wiki -- NFS](https://wiki.archlinux.org/title/NFS)
+- [How to Mount an NFS Share in Linux](https://linuxize.com/post/how-to-mount-an-nfs-share-in-linux/)
+First the client machine needs NFS client package
+```
+# Arch
+pacman -S nfs-utils
+# Ubuntu
+apt install nfs-common
+```
+
+**Get to know what IP addresses are allowed to use the NFS**
+On the NFS client:
+```
+$ showmount -e birch.ttic.edu
+Export list for birch.ttic.edu:
+/ripl xxx.xxx.xxx.176/28
+```
+
+<Collapse title="On the NFS server side">
+On the NFS server (birch.ttic.edu):
+```
+$ sudo exportfs -v
+/ripl         	xxx.xxx.xxx.176/28(rw,wdelay,crossmnt,root_squash,no_subtree_check,sec=sys,rw,secure,root_squash,no_all_squash)
+```
+You can also see the same info in `/etc/exports`.
+</Collapse>
+
+
+`/28` is the subnet mask that corresponds to `255.255.255.240`.
+(This value is the number of 1s counted from the left; [subnet mask cheat sheet](https://dnsmadeeasy.com/support/subnet))
+This means there are 15 IP addresses (176 to 191) allowed to access the NFS.
+
+<Collapse title="If the NFS client is not in the allowed IP list">
+Edit `/etc/exports` on the server side.
+Assuming the new client has IP address `xxx.xxx.xxx.28`,
+```
+/ripl xxx.xxx.xxx.176/28(rw,sync,no_subtree_check,crossmnt,fsid=0)
+/ripl xxx.xxx.xxx.28(rw,sync,no_subtree_check,crossmnt,fsid=0)
+```
+Note that `fsid=0` is added to the option list. [About fsid](https://unix.stackexchange.com/questions/427597/implications-of-using-nfsv4-fsid-0-and-exporting-the-nfs-root-to-entire-lan-or)
+then reload the NFS export configuration
+```
+$ sudo exportfs -r
+```
+</Collapse>
+
+You can edit `/etc/fstab` in the NFS client machine by adding:
+```
+birch.ttic.edu:/ripl/data /ripl/data nfs defaults 0 0
+birch.ttic.edu:/ripl/user /ripl/user nfs defaults 0 0
+```
+
+Then don't forget to reload the mount
+```
+sudo mount -a
+```
+
+### Resources
+- https://www.digitalocean.com/community/tutorials/how-to-use-sshfs-to-mount-remote-file-systems-over-ssh
+- https://linuxize.com/post/how-to-mount-an-nfs-share-in-linux/
+
+
+## Annoying issues
+
+### sudo rejects my correct password!!
+```
+# Check if systemd-homed is running
+systemctl status systemd-homed
+# If not, start it
+su root  # Log in as root
+systemctl start systemd-homed
+```
+
+In some other occasions, (re?)installing `pambase` fixes this.
+```
+pacman -S pambase
+```

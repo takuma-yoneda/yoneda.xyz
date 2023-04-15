@@ -1,0 +1,48 @@
+---
+title: Training large models
+date: April 12th 2023
+---
+
+## Keywords
+- Data Parallel
+  - Backprop happens on one of the GPUs
+  - That GPU needs to maintain the optimizer state
+- Distributed Data Parallel
+  - Gradients are synced after forward pass
+  - Every GPU must maintain the optimizer states
+  - Gradients are summed via **all-reduce** operation
+- Sharded
+  - Fully Sharded Data Parallel (FSDP)
+  - ZeRO-3
+  - Key insight:
+    - we can decompose the all-reduce operations into separate **reduce-scatter** and **all-gather operations**
+    
+- Model Parallel
+  - (?) tend to be much more inefficient than sharded training
+  
+
+## Resources
+- [ZeRO: Memory Optimizations Toward Training Trillion Parameter Models](https://arxiv.org/abs/1910.02054)
+- [(FAIR article) Fully Sharded Data Parallel: faster AI training with fewer GPUs](https://engineering.fb.com/2021/07/15/open-source/fsdp/)
+- [(fairseq github examples) FSDP]( https://github.com/facebookresearch/fairseq/tree/main/examples/fully_sharded_data_parallel)
+- [(PyTorch Blog) Introducing PyTorch Fully Sharded Data Parallel (FSDP) API]( https://pytorch.org/blog/introducing-pytorch-fully-sharded-data-parallel-api/)
+- https://towardsdatascience.com/sharded-a-new-technique-to-double-the-size-of-pytorch-models-3af057466dba 
+- https://www.youtube.com/watch?v=qRZrVNNe3gQ
+- https://huggingface.co/docs/accelerate/usage_guides/big_modeling
+- [Training OPT (Susan Zhang)](https://www.youtube.com/watch?v=p9IxoSkvZ-M)
+- [Rethinking PyTorch Fully Sharded Data Parallel (FSDP) from First Principles]( https://dev-discuss.pytorch.org/t/rethinking-pytorch-fully-sharded-data-parallel-fsdp-from-first-principles/1019)
+- [FairScale Documentation](https://fairscale.readthedocs.io/en/latest/what_is_fairscale.html)
+- [(PyTorch Tutorial -- beginner) DDP in PyTorch](https://pytorch.org/tutorials/beginner/ddp_series_intro.html)
+- [(PyTorch Tutorial -- intermediate) PyTorch Distributed](https://pytorch.org/tutorials/intermediate/dist_tuto.html)
+- [(PyTorch Tutorial -- intermediate) Single-Machine Model Parallel Best Practices](https://pytorch.org/tutorials/intermediate/model_parallel_tutorial.html)
+- [(PyTorch Tutorial) PyTorch Distributed Overrview](https://pytorch.org/tutorials/beginner/dist_overview.html)
+- [torchrun](https://pytorch.org/docs/stable/elastic/run.html)
+- [An Introduction to Distributed Deep Learning (Blog; 2016)](https://sebarnold.net/dist_blog/)
+
+## Code
+- Fairscale
+- Fairseq
+- [PyTorch Distributed](https://pytorch.org/docs/stable/distributed.html)
+- torch.distributed.checkpoint
+  - Saving a distributed model in SPMD style
+  - What the heck is SPMD??
