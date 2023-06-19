@@ -68,7 +68,7 @@ export default function Post({ post }: Props) {
     // code: ({ children }) => <code className='bg-lime-300'>{ children }</code>,
     blockquote: ({ children }) => (
       <>
-        <blockquote className='not-prose border-l-4 border-zinc-400 text-zinc-600 py-1 pl-[0.7em] my-4 ml-2'>
+        <blockquote className='not-prose border-l-4 border-zinc-400 text-zinc-600 dark:text-stone-400 py-1 pl-[0.7em] my-4 ml-2'>
           {children}
         </blockquote>
       </>

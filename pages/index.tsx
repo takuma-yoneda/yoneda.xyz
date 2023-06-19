@@ -154,8 +154,22 @@ const Internships = () => {
     <>
       <SectionHeading>Internships</SectionHeading>
       <ul className='list-disc list-inside'>
-        <li>foo</li>
-        <li>bar</li>
+        <li>
+          <Link href='https://preferred.jp/en/'>Preferred Networks, Inc.</Link> (Tokyo, Japan; 2019 Summer)
+          {/* <p>Deep Reinforcement Learning for multi-agent cooperative game with communication.</p> */}
+        </li>
+        <li>
+          <Link href='https://mr.cs.ucl.ac.uk/'>University College London</Link> (London, UK; 2018 Summer)
+          {/* <p>Led a project on Fact-Extraction and VERification (FEVER) shared task. We got the 2nd place in the competition.</p> */}
+        </li>
+        <li>
+          <Link href='https://tech.zozo.com/en/'>VASILY, Inc.</Link> (Tokyo, Japan; 2017 Summer)
+          {/* <p>Learning a joint embedding space for images and descriptions to realize a multi-modal search system.</p> */}
+        </li>
+        <li>
+          <Link href='https://yamaha-motor.com/'>Yamaha Motor Corporation</Link> (Shizuoka, Japan; 2017 Spring)
+          {/* <p>Improving a model to obtain better bounding box in car detection tasks.</p> */}
+        </li>
       </ul>
     </>
   )
@@ -186,6 +200,7 @@ export default function Home() {
         <main>
           <NameCard
             name="Takuma Yoneda"
+            altname="米田 拓真"
             image_url="/tyoneda.jpg"
             mobile={false}
           />

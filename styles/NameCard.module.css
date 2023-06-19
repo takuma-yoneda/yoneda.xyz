@@ -39,7 +39,7 @@
     }
     .name_card h1 {
         font-size: 20px;
-        padding: 0.5rem 0;
+        padding-top: 0.5rem;
     }
     .affiliation_box{
         line-height: normal;

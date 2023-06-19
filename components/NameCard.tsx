@@ -8,7 +8,7 @@ let bio = [
   ['fa-solid fa-envelope', 'takuma (at) ttic.edu']
 ]
 
-const NameCard = ({image_url, name, mobile}) => {
+const NameCard = ({image_url, name, altname, mobile}) => {
   let pc_component = (
     <div className={`max-w-3xl ${styles.name_card}`}>
       <div className={styles.image_box}>
@@ -42,7 +42,8 @@ const NameCard = ({image_url, name, mobile}) => {
 
       {/* <div className='ml-10 flex flex-col justify-between'> */}
       <div className={styles.name_box}>
-        <h1 className='text-4xl py-4'>{name}</h1>
+        <h1 className='text-4xl pt-4'>{name}</h1>
+        <p className='text-md pl-1'>{altname}</p>
       </div>
       <div className={styles.affiliation_box}>
         <ul>
