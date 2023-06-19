@@ -9,7 +9,7 @@ type Props = {
   }
 
 const PostBody = ({ mdxSource }: Props) => {
-  console.log('PostBody', mdxSource)
+    /* console.log('PostBody', mdxSource) */
   return (
     <article className='prose'>
       <MDXRemote {...mdxSource} />

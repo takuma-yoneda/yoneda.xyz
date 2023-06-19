@@ -56,18 +56,24 @@ export async function getStaticPaths() {
 export default function Post({ post }: Props) {
   console.log('postdata', post)
   const components = {
-    h1: ({ children }) => <SectionHeading>{ children }</SectionHeading>,
-    h2: ({ children }) => <h2 className='text-xl'>{ children }</h2>,
-    strong: ({ children }) => <strong className='font-normal'>{ children }</strong>,
-    ul: ({ children }) => <ul className='list-disc list-inside ml-3 my-2'>{ children }</ul>,
-    ol: ({ children }) => <ol className='list-decimal list-inside ml-3 my-2'>{ children }</ol>,
+    h1: ({ children }) => <SectionHeading>{children}</SectionHeading>,
+    h2: ({ children }) => <h2 className='not-prose text-3xl'>{children}</h2>,
+    strong: ({ children }) => <strong className='not-prose font-normal'>{children}</strong>,
+    ul: ({ children }) => <ul className='not-prose list-disc list-inside ml-3 my-2 marker:text-zinc-500 marker:text-sm'>{children}</ul>,
+    ol: ({ children }) => <ol className='not-prose list-decimal list-inside ml-3 my-2'>{children}</ol>,
+    code: ({ children }) => <code className='inline-block bg-blue-200 text-[0.8rem] font-mono rounded py-0 px-1'>{children}</code>,
+    pre: ({ children }) => <pre className='bg-slate-200 text-[0.8rem] font-mono rounded p-4 my-4 overflow-scroll'>{children}</pre>,
+    // code: ({ children }) => <code className='inline-block bg-slate-200 text-[0.8rem] font-mono rounded py-0 px-1'>{children}</code>, 
+    // pre: ({ children }) => <pre className='bg-black text-[0.8rem] font-mono rounded p-4 my-4 overflow-scroll'>{children}</pre>,
+    // code: ({ children }) => <code className='bg-lime-300'>{ children }</code>,
     blockquote: ({ children }) => (
       <>
-        <blockquote className='border-l-4 border-zinc-400 text-zinc-600 py-1 pl-[0.7em] my-4 ml-2'>
-          { children }
+        <blockquote className='not-prose border-l-4 border-zinc-400 text-zinc-600 py-1 pl-[0.7em] my-4 ml-2'>
+          {children}
         </blockquote>
       </>
-    )
+    ),
+      /* code: ({ children }) => <code className='inline-block bg-slate-200 text-[0.8rem] font-mono rounded py-0 px-1'>{children}</code> */
   }
   return (
     <>

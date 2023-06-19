@@ -2,7 +2,7 @@
 .navbar {
     padding: 1.5em calc(34% - 12rem);
     box-shadow: 0 0 1em rgba(40, 40, 40, .03);
-    background: #2b2b2b;
+    background-color: #2b2b2b;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -13,5 +13,11 @@
 @media (max-width: 40em){
     .navbar {
         padding: 1.5em 1em;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .navbar {
+        background-color: #212125;
     }
 }

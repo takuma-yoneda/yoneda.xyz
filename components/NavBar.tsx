@@ -16,7 +16,7 @@ const NavBar = () => {
   return (
     <header className={styles.navbar}>
       <h1 className="text-[1.6em] font-light text-white">
-        <Link href="/">
+        <Link className='text-white' href="/">
           {username}
         </Link>
       </h1>

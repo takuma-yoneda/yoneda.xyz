@@ -24,12 +24,24 @@
   --line-height: 1.65;
   /* --link-color: #68f; */
   --link-color: #68f;
+  --text-color-light: #000;
+  --text-color-dark: #d0d0d0;
   --dark: #282828;
   --light: #ffffff ;
   --font-weight: 300;
 
+  background-color: var(--light);
+  color: var(--text-color-light);
+
   /* To pass it to rgba function, it cannot be hex form*/
-  --mix-color: 148, 148, 148;
+  /* --mix-color: 148, 148, 148; */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    background-color: var(--dark);
+    color: var(--text-color-dark);
+  }
 }
 
 body {
@@ -40,18 +52,17 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     margin: 0;
-
-    background: rgba(var(--mix-color), 0.01);
+    /* background: rgba(var(--mix-color), 0.01); */
 }
 
-main a {
+a {
   /* color: #0070f3; */
-  color: #68f;
+  color: var(--link-color);
   text-decoration: none;
   transition: color .4s
 }
 
-main a:hover {
+a:hover {
   color: #949494;
 }
 

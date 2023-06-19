@@ -8,6 +8,10 @@ import mdxPrism from 'mdx-prism'
 import rehypePrism from 'rehype-prism-plus'
 import { MDXRemote } from 'next-mdx-remote'
 
+import rehypeKatex from 'rehype-katex'
+import remarkMath from 'remark-math'
+import remarkGfm from 'remark-gfm'
+
 const postsDirectory = join(process.cwd(), '_posts')
 
 export function getPostSlugs() {
@@ -29,21 +33,7 @@ export function getPostSlugs() {
 export async function getPostBySlug(slug: string, fields: string[] = []) {
   const fullPath = join(postsDirectory, `${slug}.mdx`)
   const fileContents = fs.readFileSync(fullPath, 'utf8')
-  console.log('getPostBySlug --', fileContents)
   const { data, content } = matter(fileContents)
-  console.log('getPostBySlug -- data', data)
-  console.log('getPostBySlug -- content', content)
-
-  const mdxSource = await serialize(content, {
-    mdxOptions: {
-      remarkPlugins: [],
-      // rehypePlugins: [mdxPrism]
-      rehypePlugins: [[rehypePrism, { ignoreMissing: true }]]
-    }
-  })
-
-  console.log('getPostBySlug -- mdxSource', mdxSource)
-
 
   type Items = {
     [key: string]: string
@@ -51,12 +41,23 @@ export async function getPostBySlug(slug: string, fields: string[] = []) {
 
   const items: Items = {}
 
+  // Only serialize when necessary
+  let mdxSource
+  if (fields.includes('mdxSource')) {
+    mdxSource = await serialize(content, {
+      mdxOptions: {
+        remarkPlugins: [remarkMath, remarkGfm],
+        rehypePlugins: [rehypeKatex, [rehypePrism, { ignoreMissing: true }]]
+      }
+    })
+  }
+
   // Ensure only the minimal needed data is exposed
   fields.forEach((field) => {
     if (field === 'slug') {
       items[field] = slug
     }
-    if (field === 'mdxSource') {
+    if (field === 'mdxSource' && mdxSource) {
       items[field] = mdxSource
     }
 
@@ -70,11 +71,22 @@ export async function getPostBySlug(slug: string, fields: string[] = []) {
 
 export async function getAllPosts(fields: string[] = []) {
   const slugs = getPostSlugs();
+
+  // NOTE: I guess this is not a good idea?
+  // /pages/posts/index.tsx uses getAllPosts function, but it shouldn't need
+  // to access all the article contents.
   const postPromises = slugs.map((slug) => getPostBySlug(slug, fields));
   const posts = await Promise.all(postPromises);
-  console.log("posts -- getAllPosts", posts);
   // sort posts by date in descending order
-  return posts.sort((post1, post2) => (post1.date > post2.date ? -1 : 1));
+  return posts.sort((post1, post2) => {
+    if (!post1.date) {
+      return 1;
+    }
+    if (!post2.date) {
+      return -1;
+    }
+    return post1.date > post2.date ? -1 : 1;
+  });
 }
 
 // export async function getAllPosts(fields: string[] = []) {
