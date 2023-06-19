@@ -42,7 +42,7 @@ export async function getPostBySlug(slug: string, fields: string[] = []) {
   const items: Items = {}
 
   // Only serialize when necessary
-  let mdxSource
+  let mdxSource;
   if (fields.includes('mdxSource')) {
     mdxSource = await serialize(content, {
       mdxOptions: {
@@ -63,6 +63,10 @@ export async function getPostBySlug(slug: string, fields: string[] = []) {
 
     if (typeof data[field] !== 'undefined') {
       items[field] = data[field]
+
+      if (field === 'date' && typeof data[field] !== 'string') {
+        items[field] = data[field].toISOString()
+      }
     }
   })
 
