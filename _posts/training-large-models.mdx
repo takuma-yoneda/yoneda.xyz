@@ -1,9 +1,10 @@
 ---
 title: Training large models
-date: April 12th 2023
+categories: language-models
+date: '2023-04-13'
 ---
 
-## Keywords
+# Keywords
 - Data Parallel
   - Backprop happens on one of the GPUs
   - That GPU needs to maintain the optimizer state
@@ -21,7 +22,7 @@ date: April 12th 2023
   - (?) tend to be much more inefficient than sharded training
   
 
-## Resources
+# Resources
 - [ZeRO: Memory Optimizations Toward Training Trillion Parameter Models](https://arxiv.org/abs/1910.02054)
 - [(FAIR article) Fully Sharded Data Parallel: faster AI training with fewer GPUs](https://engineering.fb.com/2021/07/15/open-source/fsdp/)
 - [(fairseq github examples) FSDP]( https://github.com/facebookresearch/fairseq/tree/main/examples/fully_sharded_data_parallel)
@@ -39,7 +40,7 @@ date: April 12th 2023
 - [torchrun](https://pytorch.org/docs/stable/elastic/run.html)
 - [An Introduction to Distributed Deep Learning (Blog; 2016)](https://sebarnold.net/dist_blog/)
 
-## Code
+# Code
 - Fairscale
 - Fairseq
 - [PyTorch Distributed](https://pytorch.org/docs/stable/distributed.html)
