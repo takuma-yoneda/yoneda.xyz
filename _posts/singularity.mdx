@@ -1,0 +1,92 @@
+---
+title: "Singularity / Apptainer"
+categories: singularity, apptainer, container virtualization, scratch
+date: '2022-07-12'
+---
+
+# Build from a local docker image
+https://github.com/apptainer/singularity/issues/1537#issuecomment-557527638
+```
+singularity build <image_name.sif> docker-daemon://<docker_image>:<tag>
+```
+
+Another option is to transcribe Dockerfile to definition file:
+```bash
+# You need to pip install spython first
+$ spython recipe Dockerfile &> Singularity.def
+```
+But I found it not to work properly.
+
+# Run command
+What I frequently use:
+- `--nv`: allow access to gpus
+- `-C` or `--containall`: isolate filesystem, PID, IPC, and environment variables from host
+- `-B <src>:<dest>` or `--bind <src>:<dest>`: same as `-v` (mount) in docker. src is the path on the host, dest is the path in the container
+- `--pwd <path>`: specify working directory (NOTE: confusingly, `--workdir` is for something different)
+- `--fakeroot`: run container in new user namespace as uid 0
+```bash
+singularity run --fakeroot --nv --containall -B <source-path>:<target-path> --pwd <default_dir> <sif_file> bash -c '<cmd>'
+```
+
+# Persistent Overlays
+When I use mujoco_py (I still use MuJoCo v2.0), it attempts to create a lock file at `/usr/local/lib/python3.8/dist-packages/mujoco_py/generated/mujocopy-buildlock`, and fails with:
+```bash
+>>> import mujoco_py
+...
+OSError: [Errno 30] Read-only file system: b'/usr/local/lib/python3.8/dist-packages/mujoco_py/generated/mujocopy-buildlock'
+```
+Previously I avoided this with [Persistent Overlays](https://apptainer.org/docs/user/main/persistent_overlays.html).
+Recently I've learned that by simply adding `--writable-tmpfs` at runtime is enough.
+I can just do `singularity run --writable-tmpfs d4rl.sif bash` and mujoco_py works fine.
+
+:::details --fakeroot flag
+If you see the same error, you should double check the ownership of the directory.
+On Ubuntu 20.04 with apptainer version 1.1.0, I still got the same exact error.
+When I checked the ownership:
+```bash
+$ singularity run --nv --containall --writable-tmpfs robosuite.sif bash
+Apptainer> ls -lah /usr/local/lib/python3.8/dist-packages/mujoco_py/generated/mujocopy-buildlock
+-rw-r--r-- 1 nobody nogroup 0 Aug 15 20:49 /usr/local/lib/python3.8/dist-packages/mujoco_py/generated/mujocopy-buildlock
+Apptainer> id
+uid=1002(ripl) gid=1002(ripl) groups=1002(ripl),65534(nogroup)
+Apptainer> whoami
+ripl
+Apptainer> groups
+ripl nogroup
+Apptainer> id nobody
+uid=65534(nobody) gid=65534(nogroup) groups=65534(nogroup)
+```
+This is so weird... But I could get it resolved with `--fakeroot` flag.
+:::
+
+Hmmm this time using `--writable-tmpfs` didn't solve it:
+```bash
+>>> import mujoco_py
+...
+OSError: [Errno 95] Operation not supported: b'/usr/local/lib/python3.8/dist-packages/mujoco_py/generated/mujocopy-buildlock'
+```
+It seems like the issue of FUSE (Filesystem in Userspace). [A website by Microsoft](https://docs.microsoft.com/en-us/azure/databricks/kb/dbfs/errno95-operation-not-supported) says:
+
+> Direct appends and random writes are not supported in FUSE v2
+In this case, I needed to use [Persistent Overlay](https://docs.sylabs.io/guides/3.5/user-guide/persistent_overlays.html).
+```bash
+$ mkdir -p overlay/upper
+$ mkdir overlay/work
+$ dd if=/dev/zero of=overlay.img bs=1M count=500 && mkfs.ext3 -d overlay overlay.img
+$ singularity shell --overlay overlay.img ubuntu.sif
+```
+
+{/* # Basics */}
+{/* - `singularity help [command]` shows help for the command */}
+{/* - You need to be root to build from a recipe */}
+{/*   - `sudo singularity build --sandbox lolcow Singularity.def` */}
+{/* - Container file formats */}
+{/*   - `squashfs`: default. immutable (cannot edit, typically `.simg / .sif` extension) */}
+{/*   - `sandbox`: you can tinker with it (it is a simple directory that contains everything) */}
+  
+{/* - `singularity shell --writable lolcow`: writable option allows us to write in the container. And that will persist. */}
+
+
+## Issues I had:
+### How to copy an entire directory to singularity container at build time
+https://groups.google.com/a/lbl.gov/g/singularity/c/4NFDsohnxgg?pli=1

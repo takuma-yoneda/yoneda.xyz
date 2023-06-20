@@ -1,0 +1,257 @@
+---
+title: "ArchLinux"
+categories: linux, archlinux, scratch
+date: '2022-07-08'
+---
+
+# Network
+Installation guide let us set up network with ip-link tool.
+```bash
+$ ip link  # List network interfaces
+$ ip address show  # List IP addresses
+
+# Manually add a static IP address to an interface
+$ ip address add <address>/<prefix_len> broadcast + dev <interface>
+
+# Manually set up a routing table
+$ ip route show  # Show routing table
+$ ip route add default via <address> dev <interface>  # Add "default" route
+```
+
+This lets us connect to the internet, but the configuration with ip-link is **not persistent**.
+A persistent configuration can be made with [NetworkManager](https://wiki.archlinux.org/title/NetworkManager):
+```bash
+$ sudo pacman -S networkmanager  # Install
+$ sudo systemctl enable NetworkManager.service  # Enable service (i.e., it will start automatically at boot)
+$ sudo systemctl start NetworkManager.service  # Start the service right now
+
+$ nmcli device  # List network devices
+DEVICE    TYPE      STATE        CONNECTION
+enp6s0f1  ethernet  connected    Wired connection 1
+enp6s0f0  ethernet  unavailable  --
+lo        loopback  unmanaged    --
+
+$ nmcli conn  # List connections
+NAME                UUID                                  TYPE      DEVICE
+Wired connection 1  c3a1896c-a190-3e1b-b1d5-8849ada345a5  ethernet  enp6s0f1
+Wired connection 2  064d9092-0987-3060-9d9d-c6fdfcbcaefe  ethernet  --
+
+$ sudo nmcli conn edit 'Wired connection 1'  # Edit connection interactively
+...
+$ sudo nmcli connection modify 'Wired connection 1' <setting>.<property> <value>  # Edit manually
+```
+:::message alert
+Make sure to type `activate` and save the configuration before `quit`ting nmcli!!
+Otherwise the configuration change won't be reflected.
+:::
+
+DNS can be also configured in `nmcli`.
+
+
+```bash
+$ sudo nmcli con edit 'Wired connection 1'
+```
+
+
+# Install NVIDIA driver
+[ArchWiki (NVIDIA)](https://wiki.archlinux.org/title/NVIDIA#Installation)
+
+Install an appropriate driver. In my case I have *GeForce GTX 1080 Ti* on my box. Thus simply install nvidia package:
+```bash
+$ sudo pacman -S nvidia
+```
+In my case I needed to run `sudo pacman -Syu` to update package list (?) first. Otherwise the driver version was not the latest.
+
+:::message
+As it is written in *Note*, Linux 5.18 seems to have issues with Intel CPUs.
+The suggested workaround is to change a [kernel parameter](https://wiki.archlinux.org/title/Kernel_parameters) (ibt). This can be done through boot loader configuration (grub).
+```bash
+$ sudo vi /etc/default/grub
+# Add "ibt=off" to GRUB_CMDLINE_LINUX_DEFAULT
+# Also look at: https://bbs.archlinux.org/viewtopic.php?id=277205
+
+# Finally generate the config file
+$ sudo grub-mkconfig -o /boot/grub/grub.cfg
+```
+:::
+
+After reboot, I can confirm the GPU is visible:
+```bash
+$ nvidia-smi
+Fri Jul  8 17:59:39 2022
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 515.57       Driver Version: 515.57       CUDA Version: 11.7     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  NVIDIA GeForce ...  Off  | 00000000:82:00.0 Off |                  N/A |
+| 24%   41C    P0    58W / 250W |      0MiB / 11264MiB |      1%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
+|=============================================================================|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+
+$ python3
+Python 3.10.5 (main, Jun  6 2022, 18:49:26) [GCC 12.1.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import torch
+>>> torch.cuda.is_available()
+True
+```
+
+# Install from AUR repository
+First, go to the AUR package page (e.g., https://aur.archlinux.org/packages/nvidia-container-toolkit)
+And then download the repository that contains PKGBUILD file.
+You can either git clone from the git repository or click *Download Snapshot* in Package Actions.
+
+Once you enter the directory that contains PKGBUILD, run `makepkg -si`.
+- `-s, --syncdeps`: Install missing dependencies using pacman
+- `-i, --install`: Install or upgrade the package after a successful build using pacman
+
+Dependency installation seems to fail when the dependency is an AUR package. I resolved it by manually installing that AUR package first.
+
+# Get X11 forward working
+https://bbs.archlinux.org/viewtopic.php?id=202098
+```bash
+# Install xauth
+$ sudo pacman -S xorg-xauth
+
+# Enable X11Forwarding on sshd config
+$ sudo vi /etc/ssh/sshd_config
+...
+X11Forwarding yes
+#X11DisplayOffset 10
+#X11UseLocalhost yes
+...
+
+# Restart sshd daemon
+$ sudo systemctl restart sshd
+```
+
+# Miscellaneous issues
+## Pacman fails with "signature from ... is marginal trust"
+```bash
+$ sudo pacman -Su
+...
+error: libcap: signature from "David Runge <dvzrv@archlinux.org>" is marginal trust
+:: File /var/cache/pacman/pkg/libcap-2.65-1-x86_64.pkg.tar.zst is corrupted (invalid or corrupted package (PGP signature)).
+Do you want to delete it? [Y/n] Y
+...
+error: failed to commit transaction (invalid or corrupted package)
+Errors occurred, no packages were upgraded.
+```
+
+This happens when the system is not updated for a while.
+Simply running this:
+```bash
+$ sudo pacman -S archlinux-keyring
+```
+solved the issue.
+
+References:
+- https://forum.endeavouros.com/t/keyring-corruption-when-not-used-for-months/30200
+- https://bbs.archlinux.org/viewtopic.php?id=278332
+
+
+# networking
+IP tables
+
+```bash
+$ sudo iptables-save
+# Generated by iptables-save v1.8.8 on Thu Sep  8 09:14:45 2022
+*filter
+:INPUT ACCEPT [487701157:729711079430]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [549021691:1428249718823]
+:DOCKER - [0:0]
+:DOCKER-ISOLATION-STAGE-1 - [0:0]
+:DOCKER-ISOLATION-STAGE-2 - [0:0]
+:DOCKER-USER - [0:0]
+-A FORWARD -j DOCKER-USER
+-A FORWARD -j DOCKER-ISOLATION-STAGE-1
+-A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -o docker0 -j DOCKER
+-A FORWARD -i docker0 ! -o docker0 -j ACCEPT
+-A FORWARD -i docker0 -o docker0 -j ACCEPT
+-A DOCKER-ISOLATION-STAGE-1 -i docker0 ! -o docker0 -j DOCKER-ISOLATION-STAGE-2
+-A DOCKER-ISOLATION-STAGE-1 -j RETURN
+-A DOCKER-ISOLATION-STAGE-2 -o docker0 -j DROP
+-A DOCKER-ISOLATION-STAGE-2 -j RETURN
+-A DOCKER-USER -j RETURN
+COMMIT
+# Completed on Thu Sep  8 09:14:45 2022
+# Generated by iptables-save v1.8.8 on Thu Sep  8 09:14:45 2022
+*nat
+:PREROUTING ACCEPT [27996:1975576]
+:INPUT ACCEPT [20822:1165063]
+:OUTPUT ACCEPT [42264:2512428]
+:POSTROUTING ACCEPT [42264:2512428]
+:DOCKER - [0:0]
+-A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER
+-A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER
+-A POSTROUTING -s 172.17.0.0/16 ! -o docker0 -j MASQUERADE
+-A DOCKER -i docker0 -j RETURN
+COMMIT
+# Completed on Thu Sep  8 09:14:45 2022
+```
+
+Docker adds some entries to IP tables.
+If you delete them by mistake:
+https://stackoverflow.com/questions/25917941/docker-how-to-re-create-dockers-additional-iptables-rules
+
+
+## Using netcat
+```bash
+[server]$ netstat -ltu
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 0.0.0.0:ssh             0.0.0.0:*               LISTEN
+tcp6       0      0 [::]:ssh                [::]:*                  LISTEN
+```
+
+Now let's listen to 13333 (`-l` for listen mode)
+```bash
+[server]$ netcat -l -p 13333
+```
+
+You can see that port 13333 is listened
+```bash
+[server]$ netstat -ltu
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 0.0.0.0:ssh             0.0.0.0:*               LISTEN
+tcp        0      0 0.0.0.0:13333           0.0.0.0:*               LISTEN
+tcp6       0      0 [::]:ssh                [::]:*                  LISTEN
+```
+
+Send data through the port
+```bash
+[client]$ netcat <ip addr> 13333
+hello there
+```
+
+
+## Cannot login as root...
+https://bbs.archlinux.org/viewtopic.php?id=258997
+
+It's likely that password login to root is prohibited.
+You can confirm this by running `sudo sshd -T`.
+If you have `permitrootlogin without-password` in the output, that means password login is not allowed.
+
+To fix this, you can edit `/etc/ssh/sshd_config` and add this line
+```
+PermitRootLogin yes
+```
+(NOTE: There's another file with very similar name, not to be mistaken `/etc/ssh/ssh_config`)
+Make sure to restart `sshd` after this.
+```
+sudo systemctl restart sshd
+```

@@ -1,0 +1,11 @@
+---
+title: TTIC cluster tips
+categories: ttic
+date: 2023-04-18
+---
+
+Cancel all pending jobs belonging to user "bob" in partition "debug"
+```bash
+$ scancel --state=PENDING --user=bob --partition=debug
+```
+
