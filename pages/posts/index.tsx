@@ -4,8 +4,19 @@ import Layout from '@/components/Layout'
 
 import { getAllPosts } from '@/lib/api'
 
-export default function Home({ posts }) {
-    console.log('allPostsData', posts)
+interface PostData {
+  slug: string;
+  date: string;
+  title: string;
+}
+
+interface HomeProps {
+  posts: PostData[];
+}
+
+
+export default function Home({ posts }: HomeProps) {
+  // console.log('allPostsData', posts)
   return (
     <Layout>
         <div className='flex flex-col items-center'>
@@ -32,9 +43,9 @@ export async function getStaticProps() {
     // NOTE: There's an issue about date formatting.
     // gray-matter seems to convert the date to non-string type
     // when frontmatter's date is not surrounded by `'` nor `"`.
-    posts.map(({slug, date, title}) => {
-        console.log('slug', slug, 'date', date)
-    })
+    // posts.map(({slug, date, title}) => {
+    //     console.log('slug', slug, 'date', date)
+    // })
     posts = JSON.parse(JSON.stringify(posts))
   return {
       props: {

@@ -12,7 +12,10 @@ import rehypeKatex from 'rehype-katex'
 import remarkMath from 'remark-math'
 import remarkGfm from 'remark-gfm'
 
+import { MDXRemoteSerializeResult } from 'next-mdx-remote';
+
 const postsDirectory = join(process.cwd(), '_posts')
+
 
 export function getPostSlugs() {
   /* Read .mdx files from postsDirectory and returns the slugs*/
@@ -36,13 +39,13 @@ export async function getPostBySlug(slug: string, fields: string[] = []) {
   const { data, content } = matter(fileContents)
 
   type Items = {
-    [key: string]: string
+    [key: string]: string | MDXRemoteSerializeResult | undefined;
   }
 
   const items: Items = {}
 
   // Only serialize when necessary
-  let mdxSource;
+  let mdxSource: MDXRemoteSerializeResult | undefined;
   if (fields.includes('mdxSource')) {
     mdxSource = await serialize(content, {
       mdxOptions: {
@@ -58,7 +61,7 @@ export async function getPostBySlug(slug: string, fields: string[] = []) {
       items[field] = slug
     }
     if (field === 'mdxSource' && mdxSource) {
-      items[field] = mdxSource
+      items[field] = mdxSource;
     }
 
     if (typeof data[field] !== 'undefined') {
@@ -76,11 +79,17 @@ export async function getPostBySlug(slug: string, fields: string[] = []) {
 export async function getAllPosts(fields: string[] = []) {
   const slugs = getPostSlugs();
 
+  // We need 'date' field to sort posts by date
+  // fields.push('date');
+
   // NOTE: I guess this is not a good idea?
   // /pages/posts/index.tsx uses getAllPosts function, but it shouldn't need
   // to access all the article contents.
   const postPromises = slugs.map((slug) => getPostBySlug(slug, fields));
   const posts = await Promise.all(postPromises);
+  // console.log('============', fields)
+  // console.log(posts)
+  // console.log('============')
   // sort posts by date in descending order
   return posts.sort((post1, post2) => {
     if (!post1.date) {
@@ -89,6 +98,8 @@ export async function getAllPosts(fields: string[] = []) {
     if (!post2.date) {
       return -1;
     }
+    // console.log("post1 type", typeof post1.date, "post2 type", typeof post2.date)
+    // console.log("post1", post1.date, "post2", post2.date, "post1 > post2", post1.date > post2.date)
     return post1.date > post2.date ? -1 : 1;
   });
 }

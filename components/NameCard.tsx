@@ -1,14 +1,22 @@
 import React from 'react'
 import styles from '../styles/NameCard.module.css'
 
-let bio = [
+type BioEntry = [string, string];
+interface NameCardProps {
+  image_url: string;
+  name: string;
+  altname: string;
+  mobile: boolean;
+};
+
+let bio: BioEntry[] = [
   ['fa-solid fa-location-dot', 'Chicago'],  // Location
   ['fa-solid fa-user-graduate', 'PhD candidate at TTIC'],  // Position
   ['fa-solid fa-microscope', 'Reinforcement Learning, Robotics and NLP'],  // Interest
   ['fa-solid fa-envelope', 'takuma (at) ttic.edu']
 ]
 
-const NameCard = ({image_url, name, altname, mobile}) => {
+const NameCard: React.FC<NameCardProps> = ({image_url, name, altname, mobile}) => {
   let pc_component = (
     <div className={`max-w-3xl ${styles.name_card}`}>
       <div className={styles.image_box}>

@@ -4,8 +4,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
-import Layout from '@/components/Layout.tsx'
-import NameCard from '@/components/NameCard.tsx'
+import Layout from '@/components/Layout'
+import NameCard from '@/components/NameCard'
 import SectionHeading from '@/components/SectionHeading'
 
 interface RenderAuthorsProps {
