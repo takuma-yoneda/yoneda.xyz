@@ -1,0 +1,106 @@
+---
+title: "NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis"
+layout: post
+categories: paper nerf
+date: '2022-04-17'
+---
+
+Paper: [https://arxiv.org/abs/2003.08934](https://arxiv.org/abs/2003.08934)
+
+{/* # Notes */}
+{/* - Volume rendering is naturally differentiable (??) */}
+{/* - Static scene -\-> 5D func -\-> $$(\theta, \phi), (x, y, z)$$ and density */}
+{/* - (x, y, z, \theta, \phi) -\-> single volume density and view-dependent RGB color: Neural Radiance Field */}
+
+
+# Input / Output
+$\{(x, y, z), (\theta, \phi)\} \rightarrow \text{NeRF Network} \rightarrow \{(r, g, b), \sigma\}$
+- $x, y, z$: 3D location
+- $\theta, \phi$: Viewing direction
+- $r, g, b$: emitted color
+- $\sigma$ volume density (much like opacity)
+  - This only depends on $(x, y, z)$ to have a consistency across viewpoints
+
+## Rendering (Basics)
+Rendering is stragiht-forward: (classic) volume rendering
+
+$$
+C(r) = \int_{t_\text{near}}^{t_\text{far}} T(t) \cdot {\color{blue} \sigma(\mathbf{r}(t))} \cdot {\color{green} \mathbf{c}(\mathbf{r}(t), \mathbf{d})}~dt
+$$
+
+- ${\color{blue} \mathbf{\sigma}(\mathbf{r}(t))}$: volume density at position $\mathbf{r}(t)$
+- ${\color{green} \mathbf{c}(\mathbf{r}(t), \mathbf{d})}$: the color at position $\mathbf{r}(t)$ viewed from direction $\mathbf{d}$
+- $T(t)$: the probability that the ray travels from $t_\text{near}$ to $t$: $~~~T(t) = \exp (-\int_{\text{near}}^{t} \sigma(\mathbf{r}(s))ds)$
+
+Approximating this integral with the sum over discrete bins will suffer from low resolution.
+
+In practice, they use _hierarchical_ version of _stratified sampling_.  
+- stratified sampling: Helps to simulate smoother integration than relying on discrete uniform bins.
+- hierarchical: Helps to allocate more samples to the region that affects rendering (i.e., avoid sampling a lot from empty space!)
+{/* In practice, they use a _stratified sampling_ approach with _quadrature_ rule discussed in the volume rendering literature. This emulates sampling from continuous positions, and perform volume rendering that takes into account the distance between adjacent samples. */}
+
+{/* But these are not very important. */}
+
+{/* ![method]({{ page.baseimg }}/method.png){:style="display:block; margin-left:auto; margin-right:auto; width: 90%"} */}
+![method](/media/posts/nerf/method.png =900x)
+
+:::details Stratified Sampling
+It partitions $[t_n, t_f]$ into $N$ evenly-spaced bins and then draw one sample uniformly at random from within each bin:
+
+$$
+t_i \sim \mathcal{U}[t_n + \frac{i-1}{N} (t_f - t_n),~t_n + \frac{i}{N} (t_f - t_n)]
+$$
+
+It can simulate sampling from the entire space.
+:::
+
+# Key ideas / components
+Naively training the network with above idea doesn't work. The key ideas are:
+- Encouraging the representation to be **multiview consistent** 
+  - restricting the network to predict $\sigma$ as a function of only the location $x$
+  - $c$ is predicted as a function of both location and viewing direction
+- Positional encoding  
+  - It's a common knowledge that (sinusoidal) positional encoding helps NNs to fit to high-freq signal:
+    - [On the Spectral Bias of Neural Networks](https://arxiv.org/abs/1806.08734)
+    - [Fourier Features Let Networks Learn High Frequency Functions in Low Dimensional Domains](https://arxiv.org/abs/2006.10739)
+    - [Implicit Neural Representations with Periodic Activation Functions
+](https://arxiv.org/abs/2006.09661)
+- Hierarchical sampling procedure
+  - Details below
+
+**Minor:**  
+- Viewing direction $(\theta, \phi)$ is concatenated to the feature vector in a middle layer of the network
+
+---
+
+# Training NeRF: Hierarchical sampling
+{/* - hierarchical sampling procedure */}
+{/* Motivation: we sample from free space or occluded regions that don't contribute to rendered image!! */}
+
+Hierarchical sampling **allocates more samples to the region that affects final rendering**.
+
+They simultaneously optimize two networks: _coarse_ one and _fine_ one.
+1. Sample a set of $N_c$ locations along the ray $\mathbf{r}$ using _stratified sampling_
+    - $$r_1 \ldots r_{N_c}$$
+2. Evaluate the _coarse_ network at these locations:
+    - $$r_i \rightarrow \text{NeRF Network (Coarse)} \rightarrow \{c_i, \sigma_i\}$$
+3. Compute _coarse_ rendering based on the samples:
+    - $$\hat{C}_\text{coarse}(\mathbf{r}) = \sum_{i=1}^{N_c}w_i c_i,~~w_i = T_i \cdot (1 - \exp(-\sigma_i \delta_i))$$  
+    - $\delta_i$: the distance between adjacent samples
+    - $T_i$: the probability that the ray reaches the point $i$
+    - $\sigma_i$: volume density (i.e., opacity)
+
+4. Normalize the above weights to form a piecewise-constant PDF along the ray, and sample a second set of $N_f$ locations from this distribution.
+    - $$r'_1 \ldots r'_{N_f}$$
+5. Evaluate the _fine_ network at the **all $N_c + N_f$ locations**:
+    - $$r'_i \rightarrow \text{NeRF Network (Fine)} \rightarrow \{c'_i, \sigma'_i\}$$
+    - $$r_i \rightarrow \text{NeRF Network (Fine)} \rightarrow \{c_i, \sigma_i\}$$
+
+6. Compute the final rendered color using all $N_c + N_f$ samples
+    - $$\hat{C}_\text{fine}(\mathbf{r}) = \sum_{i=1}^{N_c}w_i c_i + \sum_{i=1}^{N_f}w'_i c'_i$$  
+    - Notice that **second set of $N_f$ samples are biased towards region with higher $\sigma$**
+
+## Training loss
+
+$$\mathcal{L} = \sum_{\mathbf{r}}[\|\hat{C}_\text{coarse}(\mathbf{r}) - C(\mathbf{r)})\|^2_2 + \|\hat{C}_\text{fine}(\mathbf{r}) - C(\mathbf{r})\|^2_2]$$
+

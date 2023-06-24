@@ -1,0 +1,28 @@
+---
+title: "Docker"
+categories: docker
+date: 2022-07-19
+---
+
+# Change the directory to store docker images
+https://stackoverflow.com/a/49743270/7057866
+
+
+# Ubuntu 20.04 image asks to set timezone interactively
+A great example where `DEBIAN_FRONTEND=noninteractive` does its job.
+https://anonoz.github.io/tech/2020/04/24/docker-build-stuck-tzdata.html
+
+
+```
+W: GPG error: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64  InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY A4B469963BF863CC
+E: The repository 'https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64  InRelease' is not signed.
+```
+This often happens when I use cudagl base image...
+NVIDIA recognizes this problem: https://forums.developer.nvidia.com/t/18-04-cuda-docker-image-is-broken/212892/7
+
+You can just add these lines (for Ubuntu18.04)
+```
+RUN apt-key del 7fa2af80
+RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub
+RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/7fa2af80.pub
+```

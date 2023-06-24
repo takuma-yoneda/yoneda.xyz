@@ -1,0 +1,22 @@
+---
+title: Git tips
+date: 2023-05-26
+---
+
+# Compare a file across different branches
+This shows a diff
+```bash
+git diff <branch1>:<path/to/file> <branch2>:<path/to/file>
+```
+
+You can even apply the changes based on this diff
+```bash
+git diff <branch1>:<path/to/file> <branch2>:<path/to/file> | git apply
+```
+
+# `git rm --cached`
+This won't remove a file from your local machine.
+Also, this is **recorded differently from `git rm`** by git.
+Let's say I run `git rm --cached garbage-file`, commit and push it.
+When another person pulls this commit, the `garbage-file` on his local machine will not be deleted.
+It's simply untracked.

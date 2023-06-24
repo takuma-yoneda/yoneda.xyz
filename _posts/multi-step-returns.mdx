@@ -1,0 +1,199 @@
+---
+title: "Multi-step returns in RL"
+category: fundamentals, RL
+date: '2022-05-18'
+---
+
+{/* This post is mostly taken from the Appendix in [DeepMimic paper](https://arxiv.org/abs/1804.02717) */}
+
+# Monte-Carlo return
+$$
+\begin{align*}
+R_t &= r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \ldots + \gamma^{T-t} r_{T} \\
+&= \sum_{l=0}^{T-t} \gamma^l r_{t+l}
+\end{align*}
+$$
+
+# n-step return
+
+$$
+\begin{align*}
+R^{(n)}_t &= r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \ldots + \gamma^{n-1}r_{t+n-1} + \gamma^{n} V(s_{t+n}) \\
+&= \sum_{l=0}^{n-1}\big[ \gamma^l r_{t+l} \big] + \gamma^n V(s_{t+n})
+\end{align*}
+$$
+Basically everything after n-th step is bootstrapped with the value function
+
+:::message
+$n \rightarrow \infty$ recovers Monte-Carlo return.
+This assumes the rewards after horizon $T$ are all zeros:
+
+$$
+\begin{align*}
+R^{(\infty)}_t &= \sum_{l=0}^{T-t} \big[ \gamma^l r_{t+l} \big] + \sum_{l=T - t + 1}^{\infty} \big[ \gamma^l \cdot 0 \big] + \gamma^\infty V(s_{t+\infty}) \\
+&= \sum_{l=0}^{T-t}\big[ \gamma^l r_{t+l} \big] = R_t.
+\end{align*}
+$$
+:::
+
+| $n$         | what?              | expression                                   | biased?  | variance? |
+| :---------: | -----------        | -----                                   | ------   | ------------ |
+| 1           | 1-step return      |   $$r_t + \gamma V(s_{t+1})$$             | 🙅‍♂️ biased    | 🙆‍♂️ low-variance |
+| $\vdots$    |                    |                                         |             |  |
+| $\infty$    | Monte-Carlo return |  $$\sum_{l=0}^{T-t} \gamma^l r_{t+l}$$    | 🙆‍♂️ unbiased | 🙅‍♂️ high-variance |
+
+1-step return is common in Q-learning.
+
+Notice that $n$ acts as a trade-off between bias and variance.
+Why don't we mix these? --> $\lambda$-return
+
+# λ-return (TD(λ))
+**Exponentially weighted average of n-step returns**
+
+$$
+R_t(\lambda) = (1 - \lambda) \sum_{n=1}^{\infty} \lambda^{n-1} R_t^{(n)}
+$$
+
+#### Q. Why do we need $(1-\lambda)$ there?:
+It's necessary for normalization, as you can see from
+
+$$
+(1 - r) \sum_{k=1}^{\infty} ar^{k-1} = a
+$$
+
+:::details Basics of Geometric progression
+## Geometric Progression
+
+$$
+\sum_{k=1}^n ar^{k-1} = ar^0 + ar^1 + ar^2 + \cdots + ar^{n-1}
+$$
+A trick: multiply $(1-r)$ on both sides
+
+$$
+\begin{align*}
+(1-r)\sum_{k=1}^{n} ar^{k-1} &= (1-r)(ar^0 + ar^1 + ar^2 + \cdots + ar^{n-1}) \\
+ &= (1-r)(ar^0 + ar^1 + ar^2 + \cdots + ar^{n-1}) \\
+ &= (ar^0 + ar^1 + ar^2 + \cdots + ar^{n-1}) - (ar^1 + ar^2 + ar^3 + \cdots + ar^n) \\
+ &= a - ar^n \\
+ &= a(1-r^n) \\
+\end{align*}
+$$
+
+Thus,
+
+$$
+\sum_{k=1}^{n}ar^{k-1} = \frac{a(1 - r^n)}{1 - r}
+$$
+
+If $n \rightarrow \infty$,
+
+$$
+\sum_{k=1}^{\infty} ar^{k-1} = \frac{a}{1 - r}
+$$
+
+:::
+
+{/* Based on an assumption that rewards after horizon $t = T$ are all zeros, */}
+{/* we can assume $R^n_t = R^{T-t}_t$ for all $n \geq T-t$, */}
+
+{/* $$ */}
+{/* \begin{align*} */}
+{/* R_t(\lambda) &= (1 - \lambda) \sum_{n=1}^{\infty} \lambda^{n-1} R^n_t \\ */}
+{/* &= (1 - \lambda) \bigg[\sum_{n=1}^{T-t-1} \lambda^{n-1} R_t^n + \sum_{n=T-t}^{\infty} \lambda^{n-1}R_t^{T-t} \bigg] \\ */}
+{/* &= (1 - \lambda) \bigg[\sum_{n=1}^{T-t-1} \lambda^{n-1} R_t^n + \lambda^{T-t-1}\cdot\sum_{k=1}^{\infty} \lambda^{k-1}R_t^{T-t} \bigg] \\ */}
+{/* &= (1 - \lambda) \sum_{n=1}^{T-t-1} \big[ \lambda^{n-1} R_t^n \big] + \lambda^{T-t-1} R_t^{T-t} */}
+{/* \end{align*} */}
+{/* $$ */}
+
+- $\lambda=0 \Longrightarrow R^{(1)}_t$: 1-step return
+- $\lambda=1 \Longrightarrow R^{(\infty)}_t (=R_t)$: Monte-Carlo return
+
+# Generalized Advantage Estimator: GAE(λ)
+In one word: we simply repeat the same discussion for advantages (TD residuals), instead of returns.
+
+This simply estimates advantage with λ-return: $\hat{\mathcal{A}}_t = R_t(\lambda) - V(s_t).$
+
+## Basics: Value function and Q-function
+
+$$
+\begin{align*}
+V^{\pi, \gamma}(s_t) &\coloneqq \mathbb{E_{
+\substack{s_{t+1:\infty}, \\ {\color{blue} a_{t:\infty}}}
+}}[\sum_{l=0}^\infty \gamma^l r_{t+l}] \\
+Q^{\pi, \gamma}(s_t, a_t) &\coloneqq \mathbb{E}_{
+\substack{s_{t+1:\infty} \\ {\color{blue} a_{t+1:\infty}}}
+}[\sum_{l=0}^{\infty} \gamma^l r_{t+l}] \\
+{/* &= r_t + \gamma \cdot \mathbb{E}_{\substack{s_{t+2:\infty} \\ a_{t+1:\infty}}}[\sum_{l=0}^{\infty} \gamma^l r_{t+l}] \\ */}
+{/* &= r_t + \gamma V^{\pi, \gamma}(s_{t+1}) */}
+\end{align*}
+$$
+Advantage is defined as their difference:
+
+$$
+A^{\pi, \gamma}(s_t, a_t) \coloneqq Q^{\pi, \gamma}(s_t, a_t) - V^{\pi, \gamma}(s_t)
+$$
+
+## TD residual
+Now, we define TD residual $\delta^V_t$:
+
+$$
+\delta_t^{V^{\pi, \gamma}} = r_t + \gamma V^{\pi, \gamma}(s_{t+1}) - V^{\pi, \gamma}(s_t)
+$$
+
+This is in fact, an unbiased estimator of $A^{\pi, \gamma}(s_t, a_t)$:
+
+$$
+\begin{align*}
+\mathbb{E}_{s_{t+1}} \big[ \delta_t^{V^{\pi, \gamma}} \big]
+&= \mathbb{E}_{s_{t+1}} [r_t + \gamma V^{\pi, \gamma}(s_{t+1}) - V^{\pi, \gamma}(s_t)] \\
+&= \mathbb{E}_{s_{t+1}} [Q^{\pi, \gamma}(s_t, a_t) - V^{\pi, \gamma}(s_t)] \\
+&= A^{\pi, \gamma}(s_t, a_t)
+\end{align*}
+$$
+
+## n-step TD residual
+
+$$
+\begin{align*}
+\hat{A}_t^{(n)} &\coloneqq \sum_{l=0}^{n-1} \gamma^l \delta_{t+l}^{V} = \delta_t^V + \gamma \delta_{t+1}^V + \gamma^2 \delta_{t+2}^V + \cdots + \gamma^{n-1} \delta_{t+n-1}^{n-1} \\
+&=^{*} r_t + \gamma r_{t+1} + ~\cdots~ + \gamma^{n-1}r_{t+n-1} +~\gamma^n V(s_{t+n})  - V(s_t) \\
+&= \sum_{l=0}^{n-1}[\gamma^l r_{t+l}] + \gamma^n V(s_{t+n}) - V(s_t) \\
+&= R^{(n)}_t - V(s_t)
+\end{align*}
+$$
+\* Notice that this is a telescoping sum.
+:::message
+$n\rightarrow\infty$ becomes: [empirical returns] - [value function baseline]
+
+$$
+\hat{A}^{(\infty)}_t = \sum_{l=0}^{\infty} \gamma^l \delta_{t+l}^V = \sum_{l=0}^{\infty} [\gamma^l r_{t+l}] - V(s_t)
+$$
+:::
+
+## GAE
+**Exponentially weighted average of n-step TD residuals**
+
+$$
+\begin{align*}
+\hat{A}_t^{\text{GAE}(\gamma, \lambda)} &\coloneqq (1-\lambda)\sum_{n=1}^{\infty}\lambda^{n-1}\hat{A}_t^{(n)} \\
+&= (1-\lambda)\big(\delta_t^V + \lambda(\delta_t^V + \gamma \delta_{t+1}^V) + \lambda^2(\delta_t^V + \gamma \delta_{t+1}^V + \gamma^2 \delta_{t+2}^V) + \cdots \big) \\
+&= (1-\lambda)\big(\delta_t^V(1 + \lambda + \lambda^2 + \cdots) + \gamma \delta_{t+1}^V(\lambda + \lambda^2 + \lambda^3 + \cdots) + \cdots \big) \\
+&= (1-\lambda)\big(\delta_t^V(\frac{1}{1-\lambda}) + \gamma \delta_{t+1}^V(\frac{\lambda}{1 - \lambda}) + \gamma^2 \delta_{t+1}^V(\frac{\lambda^2}{1 - \lambda}) + \cdots \big) \\
+&= \sum_{l=0}^{\infty} (\gamma \lambda)^l \delta_{t+l}^V
+\end{align*}
+$$
+
+- $\lambda=0$ -> **unbiased** regardless of the accuracy of $V$, but **high variance**
+- $\lambda=1$ -> **unbiased only if $V = V^{\pi, \gamma}$**, and **low variance**
+
+
+{/* | Syntax      | Description | */}
+{/* | ----------- | ----------- | */}
+{/* | Monte-Carlo return      | $$R^{(n)}_t = \sum_{l=0}^{n-1} \gamma^l r_{t+l} + \gamma^n V(s_{t+n})$$  | */}
+{/* | Paragraph   | Text        | */}
+
+
+# Reference
+- Appendix in [DeepMimic paper](https://arxiv.org/abs/1804.02717)
+- [GAE paper](https://arxiv.org/abs/1506.02438)
+- [David Silver's lecture](https://www.davidsilver.uk/teaching/) (TD(λ) slides on Lecture 4)

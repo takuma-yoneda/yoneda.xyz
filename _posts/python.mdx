@@ -1,0 +1,32 @@
+---
+title: Random Tips -- Python
+date: 2022-05-24
+---
+
+# Conditional Context Manager
+https://stackoverflow.com/a/53088625/7057866
+
+
+# Type hint for an object that is not defined yet
+[PEP0484 - Forward references](https://peps.python.org/pep-0484/#forward-references)
+Basically you can just use string for the type hint.
+
+
+# Pip-related
+## Specify specific commit hash
+```bash
+pip install -e git+https://git.repo/some_repo.git@commit-hash
+```
+## pip install from a sub-directory
+Look at [this stackoverflow page](https://stackoverflow.com/a/19516714/7057866).
+```bash
+pip install -e git+https://git.repo/some_repo.git#egg=version_subpkg&subdirectory=repo
+```
+
+## Publish a package using Github Actions CI/CD workflows
+https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows
+
+# random.randint vs np.random.randint
+- `np.random.randint(0, 10)`: 0 to 10
+- `random.randint(0, 10)`: 0 to 9
+Why...

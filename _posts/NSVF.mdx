@@ -1,0 +1,88 @@
+---
+title: "Neural Sparse Voxel Fields"
+categories: nerf, scratch, paper
+date: '2022-07-16'
+---
+# Abstract
+- NSVF defines a set of voxel-bounded implicit fields
+  - These are organized in a sparse voxel octree
+- (NeRF uses a single implicit function for an entire scene)
+- NSVF is ~10 times faster than NeRF at inference
+- Assign a voxel embedding at each vertex of the voxel (eight of them) and aggregate them to obtain a representation of a query point
+- sparse voxels containing no scene info will be pruned
+
+What is ray marching??
+You just march (walk) along the ray
+
+# Building block
+## Voxel-bounded implicit fields
+The scene is modeled as a set of voxel-bounded implicit functions:
+
+$$
+F_\theta^i: (g_i (\mathbf{p}) , \mathbf{v}) \rightarrow (\mathbf{c}, \sigma), \forall \mathbf{p} \in V_i
+$$
+- $\mathbf{c}, \sigma$: color and density of the 3D point $\mathbf{p}$
+- $\mathbf{v}$: ray direction
+- $g_i (\mathbf{p})$: the representation at point $\mathbf{p}$ is defined as follows:
+
+$$
+g_i(\mathbf{p}) = \zeta (\chi ( \tilde{g}_i (\mathbf{p}^\star_1), \ldots, \tilde{g}_i (\mathbf{p}^*_8 )))
+$$
+- $\mathbf{p}^*_1, \ldots, \mathbf{p}^*_8 \in \mathbb{R}^3$: the eight verticies of the voxel $V_i$
+- $\tilde{g}_i (\mathbf{p}^\star_1), \ldots, \tilde{g}_i (\mathbf{p}^*_8 ) \in \mathbb{R}^d$: feature vectors stored at each vertex
+- $\chi$: trilinear interpolation
+- $\zeta$: positional encoding
+
+
+**NeRF is a special case of NSVF**
+
+## Rendering algorithm for NSVF
+NSVF is more efficient than NeRF because there's no need to sample from the empty space!
+Rendering is performed in two steps:
+1. ray-voxel intersection
+2. ray-marching inside voxels
+
+![sampling](/media/posts/nsvf/nsvf-sampling.png =600x)
+![pipeline](/media/posts/nsvf/nsvf-pipeline.png =600x)
+
+### Ray-voxel intersection
+Apply [Axis Aligned Bounding Box intersection test (AABB-test)](https://developer.mozilla.org/en-US/docs/Games/Techniques/3D_collision_detection) for each ray
+- This checks if a ray intersects with a voxel
+- This runs efficiently esp. for a hierarchical octree structure
+- Their experiments show 10k~100k sparse voxels are enough for photorealistic results
+
+### Ray-marching inside Voxels
+Volume rendering requires dense samples along the ray in non-empty space.
+But sampling only from non-empty space is not trivial...
+People have explored several approaches to fix this.
+But NSVF representation explicitly only encode the dense parts!!
+
+They create a set of query points using rejection sampling based on sparse voxels.
+Color accumulation is done with the *midpoint rule*.
+
+## Learning
+Optimization is end-to-end through back-propagation.
+
+$$
+\mathcal{L} = \sum_{(p_0, v) \in R} \| C(p_0, v) - C^*(p_0, v) \|^2_2 + \lambda \Omega (A(p_0, v))
+$$
+
+- $R$: batch of sampled rays
+- $C^*$: ground-truth color of the camera-ray
+- $\Omega$: beta-distribution regularizer ()
+- $A$: accumulated transparency
+
+### Self-pruning
+This removes non-essential voxels during training.
+
+$$
+V_i~\text{ is pruned if }~\min_{j=1\ldots G} \exp (- \sigma (g_i (p_j))) > \gamma, ~~~ p_j \in V_i, ~~~ V_i \in \mathcal{V}
+$$
+- $V_i$: a voxel ($G = 16^3$ in their experiments)
+- $\sigma(g_i(p_j))$ is a predicted density at point $p_j$
+- $\gamma$: a threshold (they use $\gamma = 0.5$)
+
+### Progressive Training
+At some step of training, they halve ray-marching step size $\tau$ and voxel size $l$.
+When we divide a voxel, they subdivide each voxel into $2^3$ sub-voxels and the feature repr. of new vertices are initialized with trilinear interpolation of the original 8 vertices.
+They train synthetic scenes with 4 stages, and real scenes with 3 stages.

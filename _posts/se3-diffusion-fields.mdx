@@ -1,0 +1,172 @@
+---
+title: "SE(3)-DiffusionFields: Learning cost functions for joint grasp and motion optimization through diffusion"
+categories: paper
+date: '2022-10-05'
+---
+
+
+## Highlights
+- learning task-space, data-driven cost functions as diffusion models
+- Cross-entropy or Contrastive divergence
+  - try to create hard discr. regions in the modeled data -> this leads to large plateaus in the learned field with zero or noisy slope regions
+- it is common to rely on task-specific samplers that first generate samples close to low cost regions (??)
+
+Think about a cost function that involves multiple objective.
+Such functions are typically computed with cross-entropy or contrastive divergnce.
+These create hard discriminating regions in the modeled data, leading to zero gradient in the region.
+-> Common solution is to rely on task-specific samplers that provides samples from the low-cost regions before optimization.
+
+Instead, the proposed method forms a *smooth* cost function that provides informative gradients in all the region.
+
+To train a grasp pose generation model, they use Acronym dataset.
+It's a large scale dataset that contains pairs of `grasp pose` vs `grasp success` data for many different simulated objects.
+
+## Contributions
+1. learning **smooth cost functions** (i.e., the model that can provide informative gradient in the entire region) **in SE(3)** as diffusion models
+  - Sampling from SE(3) space is not trivial. They provide some mathematical foundation for that
+2. a single **gradient-based optimization** framework for **jointly resolving grasp and motion generation**
+  - Their method can generate the grasp and a trajectory to reach there at the same time
+
+## Background of Diffusion Models
+{/* TODO: Write a new post :) */}
+{/* You can look at [another note of mine](). */}
+They base their method on DSM: Denoising Score Matching, and sample from the model via Langevin MCMC.
+
+## Gaussian Distribution on SE(3) Lie Group
+After massaging some equations in SE(3) Lie Group, they reperesent the proabability of a grasp $\mathbf{H} \in \text{SE}(3)$ as:
+
+$$
+q(\mathbf{H} | \mathbf{H}_\mu, \Sigma) \propto \exp \big(-0.5 \| \text{Logmap}(\mathbf{H}_\mu^{-1} \mathbf{H})\|^2_{\Sigma^{-1}} \big),
+$$
+
+where $\mathbf{H}_\mu \in SE(3)$ is the mean and $\Sigma \in \mathbb{R}^{6\times6}$ is the covariance matrix.
+Logmap: $SE(3) \rightarrow \mathbb{R}^6$ projects an SE(3) pose to a 6-dim vector.
+
+## SE(3)-Diffusion Fields (SE(3)-DiF)
+mapping from a query point $\mathbf{H} \in SE(3)$ to a scalar value $e \in \mathbb{R}$
+
+$$
+e = E_\theta(\mathbf{H}, k),
+$$
+
+where $k$ is diffusion timestep.
+Other parts are identical to DSM except that they work in SE(3) space.
+
+## Training SE(3)-GraspDiffusionFields
+- They assume the pose of the object is known
+- They learn a latent feature for every object (similar to DeepSDF: Deep Signed Distance Field)
+- They jointly learn the SDF of an object and grasp diffusion model
+- They don't use grasp as input, but they rather use a fixed set of N points around the grasp's center to inform the grasp pose
+
+**Setup & Architecture**
+
+1. They pre-define a fixed set of N 3D-points around the grasp's center ($\mathbf{x}_g \in \mathbb{R}^{N \times 3}$; grasp frame)
+2. Given a grasp pose ($\mathbf{H}^w_g$) in world frame, they transform the points to world frame ($\mathbf{x}_w = \mathbf{H}^w_g \mathbf{x_g} \in \mathbb{R}^{N \times 3}$; world frame)
+3. Then they use the pose of object *m* ($\mathbf{H}_w^{o_m}$) to transform the points again to the object frame ($\mathbf{x}_{o_m} = \mathbf{H}^{o_m}_w \mathbf{x}_w \in \mathbb{R}^{N \times 3}$; object frame)
+4. Encoder $F_\theta$ takes in shape code $\mathbf{z}_m \in \mathbb{R}^z$ and the points in object frame $\mathbf{x}_{o_m} \in \mathbb{R}^{N \times 3}$ and output SDF prediction (scalar for each point) and additional features $\psi \in \mathbb{R}^{N \times \psi}$
+5. Decoder takes both SDF prediction and features, and output energy (scalar)
+
+TODO: I should just draw a figure by myself.
+
+![Main Figure](/media/posts/se3-diffusion-fields/main_fig.png)
+
+**Training Objective**
+
+$$
+\mathcal{L} = \mathbb{E}_{(o_m, \mathbf{H}^w_g) \sim \rho_{D_\text{grasp}}} \big[ \mathcal{L}_\text{dsm} (\mathbf{H}^{o_m}_{w}, \mathbf{H}^{w}_g, z_m, \theta) \big] + 
+\mathbb{E}_{(\mathbf{x}_o, o_m) \sim \rho_{D_\text{sdf}}} \big[ \mathcal{L}_\text{sdf}(\mathbf{x}_o, \text{sdf}_{o_m}, z_m, \theta) \big]
+$$
+
+- $o_m$: object
+- $z_m \in \mathbb{R}^z$: latent code of the object shape (SDF encoding)
+- $\mathcal{L}_\text{dsm}$: Denoising Score Matching loss 
+  - $\mathbf{H}^w_g \in SE(3)$: grasp pose in world frame
+  - $\mathbf{H}^{o_m}_{w} \in SE(3)$: object pose in world frame (during training, it's identity because it doesn't matter)
+- $\mathcal{L}_\text{sdf}$: SDF prediction loss 
+  - $\mathbf{x}_o \in \mathbb{R}^{N \times 3}$: a random 3D point in object frame
+  - $\text{sdf}_{o_m}: \mathbb{R}^3 \rightarrow \mathbb{R}^1$: Sign Distance Field
+
+## Grasp and motion generation
+They try to find the minimum cost trajectory $\tau^*$:
+
+$$
+\tau^* = \arg \min_\tau \mathcal{J}(\tau) = \arg \min_\tau \sum_j w_j c_j (\tau)
+$$
+
+- $c_j(\tau)$: a cost function 
+- $w_j > 0$: weights 
+
+The grasp generation model (SE(3)-DiF) forms one of the cost functions.
+With that, this optimization can take into account grasping pose.
+
+:::message
+Cost function with SE(3)-DiF
+
+$$
+c(\mathbf{q_t}, k) = E_\theta (\phi_{ee} (\mathbf{q_t}), k)
+$$
+
+, where $\phi_{ee}: \mathbb{R}^{d_q} \rightarrow \text{SE}(3)$ is forward kinematics model.
+:::
+
+Intuitively, this cost function provides low cost to those robot configurations that lead to good grasps.
+
+How to solve the minimization / optimization problem? --> Diffusion reverse process!
+Note that this does NOT involve any training, this is simply the reverse process of diffusion.
+1. Define the distribution over trajectories as $q(\mathbf{\tau}|k) \propto \exp(- \mathcal{J}(\mathbf{\tau}, k))$ (see Planning as Inference)
+  - This $q(\mathbf{\tau}|k)$ will be the target distribution
+2. Run reverse diffusion process: Langevin diffusion process
+
+$$
+\mathbf{\tau}_{k-1} = \mathbf{\tau}_k + 0.5 \alpha^2_k \nabla_{\mathbf{\tau}_k} \log q(\mathbf{\tau}|k) + \alpha_k \epsilon, \epsilon \sim \mathcal{N}(\mathbf{0}, \mathbf{I})
+$$
+
+A small caveat: all cost function must be differentiable to compute $\nabla_{\tau_k} c_{n_s}$
+
+## Highlights from experiment section
+TODO
+
+---
+Scratch
+
+
+*Smooth* function --> the cost function exposing informative gradients in the entire space.
+They learn smooth cost functions in the SE(3) robot's workspace -> task-specific costs.
+
+Acronym dataset
+
+The resulting models allow to move samples to the low-cost regions via inverse diffusion process.
+
+Combining their learned diffusion model for 6D grasp pose generation with other smooth costs (trajectory smoothness, collision avoidance cost).
+
+## Contributions
+1. learning smooth cost functions in SE(3) as diffusion models
+2. A single gradient-based optimization framework for grasp and motion generation
+
+
+## Experiments
+Three tasks
+- Picking with occlusions
+- Picking and reorienting an object
+- pick and place in shelves
+
+
+## Terms
+- tangent space
+tangent space at the identity is called Lie algebra.
+- logmap (SE(3) -> R^6) and expmap (R^6 -> SE(3))
+
+
+## Q & A
+- what is the main goal of that paper?
+- what data format they use as input?
+- what assumptions do they make (object centric/dense features)?
+- What different assumption do we want to make?
+- Is it right/wrong/preferable?
+- What did they show in figure 1?
+- What did they show in figure 2?
+- What did they show in exp 1?
+- How did they show it?
+- Compared to what?
+- What is the real world demo?
+- Why is this demo difficult? (they did 6 DOF)

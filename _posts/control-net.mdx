@@ -1,0 +1,20 @@
+---
+title: "ControlNet"
+categories: paper
+date: 2023-05-02
+---
+
+> The largest dataset size of many specific problems (e.g., object shape/normal, pose understanding, etc.)
+ is often under 100k, i.e., $5 \times 10^4$ times smaller than LAION-5B.
+→ Need to deal with overfitting
+
+ControlNet clones the weights to "trainable copy" and a "locked copy".
+These two NN blocks are connected with *zero convolution* (i.e., initialized as zero).
+→ Intuition: zero-conv prevents from adding additional noise to deep features
+→ The training is much faster than training from scratch
+
+## Questions
+- Does it only work for spatial conditions?
+  - The framework is general. But to use a trained copy in the conditioned path, you need to assume the condition has the same dimension as the input
+  - According to the nice ablation ([Ablation Study: Why ControlNets use deep encoder? What if it was lighter? Or even an MLP?](https://github.com/lllyasviel/ControlNet/discussions/188)), 
+    the framework seems to work with a simpler CNN or even MLP in the condition block

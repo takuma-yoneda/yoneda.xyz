@@ -1,0 +1,109 @@
+---
+title: "Rigid Body Motions"
+categories: notes scratch
+date: '2022-10-26'
+---
+
+# Reference
+- [Modern Robotics](http://hades.mech.northwestern.edu/images/7/7f/MR.pdf)
+- [Modern Robotics (YouTube)](https://youtu.be/v_KBHaG0mas)
+- https://ingmec.ual.es/~jlblanco/papers/jlblanco2010geometry3D_techrep.pdf
+
+# Rotation Matrix
+## The special orthogonal group: $SO(3)$
+
+> The **special orghogonal group** $SO(3)$, also known as the group of rotation matrices, is the set of all $3 \times 3$ real matrices $R$ that satisfy (i) $RR^T = I$ and (ii) $\det{R} = 1$
+
+$SO(n)$ is called groups because they satisfy the properties required of a mathematical group. More specifically, the $SO(n)$ groups are also called *matrix Lie groups* as the elements of the group form a differentiable manifold (?). 
+
+:::details Definition of a group
+A group consists of a set of elements and an operation on two elements such that, for all $A, B$ in the group:
+1. closure: $AB$ is also in the group
+2. associativity: $(AB)C = A(BC)$
+3. identity element existence: There exists an element $I$ in the group (the identity matrix for $SO(n)$) such that $AI=IA=A$
+4. inverse element existence: There exists an element $A^{-1}$ in the group such that $AA^{-1} = A^{-1}A = I$
+:::
+
+:::details Definition of Lie group
+A Lie group is a (non-empty) subset $G$ of $\mathbb{R}^N$ that fulfills:
+1. $G$ is a group
+2. $G$ is a manifold in $\mathbb{R}^N$
+3. Both the group product operation and its inverse are smooth functions
+
+Reference: https://ingmec.ual.es/~jlblanco/papers/jlblanco2010geometry3D_techrep.pdf (P.40)
+:::
+
+:::details What is Manifold??
+An $N$-dimensional manifold $M$ is a topological space where every point $p \in M$ is endowed with _local_ Euclidean structure.
+
+Intuitively, this means that in an infinitely small vicinity of a point $p$, the space looks "flat", or a $\mathbb{R}^2$ Euclidean space.
+
+Reference https://ingmec.ual.es/~jlblanco/papers/jlblanco2010geometry3D_techrep.pdf (P.40)
+:::
+
+## Exponential Coordinate Representation of Rotation (3.2.3; P.77)
+The exponential coordinates parameterize a rotation matrix in terms of:
+- a rotation axis (as a unit vector $\hat{\omega} \in \mathbb{R}^3$)
+- an angle of rotation $\theta \in \mathbb{R}$ about the axis
+
+A rotation with this is represented as $\hat{\omega}\theta \in \mathbb{R}^3$.
+
+
+:::message
+Writing  $\hat{\omega}$  and  $\theta$  individually is called the **axis-angle** representation
+:::
+
+There are two views to explain the connection with a rotation matrix $R$:
+1. If a frame was rotated by $\theta$ about $\hat{\omega}$, its final orientation (relative to the original frame) would be expressed by $R$
+2. If a frame followed angular velocity $\hat{\omega}$ for $\theta$ units of time, its final orientation (relative to the original frame) would be expressed by $R$
+
+
+Let's think about rotating a vector $p(0)$ by $\theta$ about $\hat{\omega}$ to $p(\theta)$.
+$p(t)$ forms the path traced by the tip of the vector.
+
+We can see it as $p(0)$ rotates at a constant rate (1 [rad/s]) from time $t=0$ to $t=\theta$. Then, its velocity is given by:
+
+$$
+\dot{p} = \hat{\omega} \times p
+$$
+
+Then we use 3 $\times$ 3 **skew-symmetric** matrix to transform it into a familiar form
+
+:::details skew-symmetric matrix
+Given a vector $x = [x_1, x_2, x_3]^T \in \mathbb{R}^3$,
+
+$$
+[x] \vcentcolon= \begin{bmatrix}0 & {\color{green} -x_3} & {\color{blue} x_2}\\
+{\color{green} x_3} & 0 & {\color{purple} -x_1}\\
+{\color{blue} -x_2} & {\color{purple} x_1} & 0
+\end{bmatrix}
+$$
+
+It's called skew-symmetric because $[x] = -[x]^T$.
+
+The set of all 3 $\times$ 3 skew-symmetric matrices is called $so(3)$, and is also called _Lie algebra_ of the Lie group $SO(3)$.
+:::
+
+$$
+\dot{p} = [\hat{\omega}] p
+$$
+This is a linear differential equation ($\dot{x} = Ax$), whose solution is given by:
+
+$$
+p(t) = e^{[\hat{\omega}]t}p(0)
+$$
+
+## Summary
+
+$$
+\hat{\omega}\theta \in \mathbb{R}^3 \longleftrightarrow [\hat{\omega}]\theta \in so(3) \longleftrightarrow e^{[\hat{\omega}\theta]} = R \in SO(3)
+$$
+
+**Rodrigues' formula**
+
+$$
+e^{[\hat{\omega}\theta]} = I + \sin\theta[\hat{\omega}] + (1 - \cos\theta)[\hat{\omega}] \in SO(3)
+$$
+
+
+{/* TODO: Write about twist */}

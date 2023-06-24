@@ -1,0 +1,129 @@
+---
+# Feel free to add content and custom Front Matter to this file.
+# To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
+
+layout: post
+title: "Rough Summary: DNC"
+date: 2019-07-11
+---
+{/* <script type="text/javascript" async */}
+{/*   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"> */}
+{/* </script> */}
+
+{/* # abst */}
+{/* > DNCs have the capacity to solve complex, structured tasks that are inaccessible to neural networks without external read-write memory. */}
+
+{/* > DNC architecture differs from recent neural memory frameworks in that the memory can be selectively written to as well as read. */}
+
+
+{/* **difference from Neural Turing Machines?** */}
+{/* similar, but DNC has more flexible memory access methods. */}
+
+# TL; DR
+- This paper introduces Differential Neural Computer (DNC)
+- Neural Nets cannot handle the tasks that requires complex data structures due to lack of external memory
+- DNC is fully differentiable and is capable to use external memory matrix just like random-access memory in computers
+- DNC can learn to solve tasks not by being explicitly programmed but by being trained just as other machine learning models
+- DNC can handle external read-write memory, and that enables it to solve complex and structured tasks such as moving block puzzle, finding the shortest path and inferring missing links in a graph
+
+Existing neural networks cannot dynamically allocate new spaces in memory when the memory demands of a task increase (e.g., Size of hidden state vector of LSTMs is fixed)
+
+## Model: Differential Neural Computer (DNC)
+First of all, let's describe the model at high level.
+The model can be decomposed into four components:
+
+{/* markdown does not provide the method for alphabetical listing. use html directory instead. */}
+1. Controller
+2. Read and write heads
+3. Memory
+4. Memory usage and temporal links
+
+![architecture](/media/posts/dnc/dnc_architecture.png =800x)
+
+As you can guess from the structure, this is conceptually identical to Turing Machine, which has a controller to move its tapes (memory) to the left or right, and heads to read and write on the tapes.
+
+In this paper, the Controller is just a simple variant of LSTM that spits out what they call _interface vector_ $\xi_t$.
+{/* This vector contains an instruction of where and what to read and write in the memory. */}
+This vector facilitates where and what to read and write in the memory.
+The vector $\xi_t$ is simply a concatenation of different vectors used to handle the memory. This includes _write vector_, _erase vector_, write key, _read key_, _read mode_ and other parameters for gating and so on.
+{/* The interface vector is composed of a concatenation of different vectors used to handle the memory, such as write vector, erase vector, write key, read key, read mode and other parameters for gating etc. */}
+
+{/* If you want to understand the model only at high level, the following explanation about writing and reading is pretty much it. */}
+
+In the following, I'll describe at high level how DNCs write to and read from the memory using _interface vector_ $\xi_t$.
+
+## --- Writing ---
+First, _write key_ (bottom in the green box) is used to look up the memory locations whose content are similar to the key.
+The model then confirms if those locations are already used or not with _Memory usage_ (**d** in the figure) to decide where to write (green arrow). {/* location of the memory can be edited (green row in the figure) */}
+It represents where to write in terms of _write weighting_ $w^w_t$.
+
+{/* <\!-- These locations are used with _Memory usage_ (**d** in the figure), -\-> which contains which memory locations are currently used and not, to decide where to write (green arrow). <\!-- location of the memory can be edited (green row in the figure) -\-> */}
+Once $w^w_t$ is calculated, the content is subsequently erased and overwritten based on _erase vector_ $e_t$ and _write vector_ $v_t$.
+The equation for the "erase and overwrite" shown in the paper is pretty straight forward:
+
+$$M_t = M_{t-1} \odot (\boldsymbol{1} - w_t^w e_t^\top) + w_t^w v_t^\top$$
+
+, where $M_t$ denotes the memory matrix at timestep $t$, $e_t$ and $v_t$ dentoes _erase_ and _write_ vector for each.
+
+## --- Reading ---
+As in writing, the memory location whose content is similar to _read key_ is looked up first.
+Then, instead of just reading from the location, the model performs a specific read operation of _read mode_.
+There are three read modes: _Backward_, _Content_ and _Forward_.
+
+In _Content_ mode, the model just reads from the location being looked up by the _read key_.
+When the mode is _Forward_ or _Backward_, it ignores the key and jumps forward or backward to the memory location which is edited after or before when current location is edited.
+{/* iterates through memory locations in the order they were written, and read from the new location. */}
+These modes often enable the model to easily read from the memory in the correct order (reading from the memory in the order those are written makes sense in many cases, as can be seen in stack and queue.)
+
+The order of the memory locations that are written is retained in temporal links shown in **d**.
+
+Again, following the process described above, the model calculates _read weightings_ $\{w_t^{r,1}, \ldots, w_t^{r,R}\}$ that represents where to read from.
+The equation for this is even simpler. 
+
+$$r_t^i = M_t^\top w_t^{r,i}$$
+
+The fact that there are multiple _read weightings_ corresponds to having multiple read heads in a Turing Machine. The model reads from the memory to create $R$ _read vectors_ $\{r_t^{i, 1}, \ldots, r_t^{i, R}\}$. These vectors are concatenated and subsequently fed to linear layer to calculate the model's output $y_t$.
+
+## A bit more details
+We didn't dig deep about how to calculate _write weighting_ $w_t^r$ and _read weightings_ $\{r_t^1, \ldots, r_t^R\}$.
+
+In this post, instead of fully describe how to calculate those vectors, I will just explain one of the important concepts used in the paper.
+
+### Content-based addressing
+We have seen that the memory locations that have similar content to a _key_ are looked up both in reading and writing.  
+_Content-based addressing_ exactly does the lookup operation.
+
+Now, let's say we have a key vector $k$, memory matrix $M$. {/* We want to lookup the memory locations that have a similar content to the key. */}
+The equation shown in the paper is:
+
+$$\mathcal{C}(M, \boldsymbol{k}, \beta)[i]=\frac{\exp \{\mathcal{D}(\boldsymbol{k}, M[i, \cdot]) \beta\}}{\sum_{j} \exp \{\mathcal{D}(\boldsymbol{k}, M[j, \cdot]) \beta\}}$$
+
+, where $M[i, \cdot]$ denotes _i_-th row of the memory matrix, and $\mathcal{D}$ is the cosine-similarity.
+$\beta$ here is a scalar representing key strength. This is because $\beta$ controls the peakiness of the distribution (This equation is nothing but a soft-max, and softmax has several well-known properties including this.)
+
+$\mathcal{C}(M, \boldsymbol{k}, \beta)$ is a similarity distribution over memory locations. This is used to calculate read and write weighting coupled with memory allocation or linkage (the order memory is edited).
+
+---
+# Links
+- [DeepMind Blog](https://deepmind.com/blog/differentiable-neural-computers/)
+- [Paper](https://www.nature.com/articles/nature20101)
+- [Implementation](https://github.com/deepmind/dnc)
+
+
+{/* The explanation above is pretty much enough to understand it at the high-level. */}
+{/* If you want to stop reading here, there are two things you need to note before leaving the page: */}
+{/* - The operations described above are all performed softly */}
+{/* The way to lookup the memory location based on a key is generally called "Content-based addressing". */}
+{/* DNC smartly make use of  */}
+
+{/* # Points that need to be summarized */}
+{/* - What's the difference from NTM? */}
+
+{/* $ x + y = z$ */}
+
+{/* $$ */}
+{/*   \begin{align} */}
+{/*     |\psi_1\rangle &= a|0\rangle + b|1\rangle \\ */}
+{/*     |\psi_2\rangle &= c|0\rangle + d|1\rangle + b + c */}
+{/*   \end{align} */}
+{/* $$ */}

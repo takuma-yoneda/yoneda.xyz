@@ -1,0 +1,39 @@
+---
+title: "PlenOctrees for Real-time Rendering of Neural Radiance Fields"
+categories: nerf
+date: 2022-08-15
+---
+
+## Abstract
+- Achieves 150+ FPS to render 800x800 images (3000x faster than NeRFs)
+- It pre-tabulates the NeRF into a PlenocTree
+- It removes viewing direction as an input to the neural network, and predicts a spherical harmonic representation of radiandce (??)
+
+## Terms
+- Lambertian (= diffuse?) vs non Lambertian
+- Neural Volumes
+
+**What's wrong with NeRF?**
+> NeRF rendering is slow since it requires dense sampling of the scene, where every sample requires a neural network inference
+They overcome ths by pre-sampling the NeRF into a tabulated view-dependent volume (PlenOctree)
+
+:::collapse Plenoptic functions
+what the heck is that?
+:::
+
+**Spherical Harmonics (SH)**
+A standard basis for functions defined on the surface of the sphere. This enables to recover the view-dependent color
+
+How to integrate SH:
+- They train a network that produces coefficients for the SH functions instead of raw RGB values
+  - The predicted coefficients are stored in PlenOctree
+- They also introduce a sparsity prior during NeRF training to improve the memory efficiency
+
+
+How they train NeRF faster:
+Stop the training of NeRf early and convert it into a PleOctree. Then it can be trained much faster as there's no neural nets.
+
+## Method
+NeRF-SH: a variant of the NeRF that directly outputs the SH coefficients (no input for view-direction)
+
+Converting NeRF representation to PlenOctree is straightforward: simply evaluate it on a uniform grid.

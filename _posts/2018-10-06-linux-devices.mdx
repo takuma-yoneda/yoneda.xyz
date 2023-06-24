@@ -1,0 +1,83 @@
+---
+layout: post
+title: How Linux Works -- Devices --
+tags: linux how-linux-works book
+date: 2018-10-06
+categories: jekyll update
+---
+
+This chapter describes the way to extract information about the devices and understand a few rudimentary operations.
+# Device files
+When you list files in `/dev`,
+```bash
+$ ls -l /dev
+crw-rw-rw-   1 root   tty       5,     2 Oct  6 19:28 ptmx
+drwxr-xr-x   2 root   root             0 Oct  6 18:07 pts
+crw-rw-rw-   1 root   root      1,     8 Oct  6 18:07 random
+crw-rw-r--+  1 root   netdev   10,    62 Oct  6 18:07 rfkill
+lrwxrwxrwx   1 root   root             4 Oct  6 18:07 rtc -> rtc0
+crw-------   1 root   root    249,     0 Oct  6 18:07 rtc0
+brw-rw----   1 root   disk      8,     0 Oct  6 18:07 sda
+brw-rw----   1 root   disk      8,     1 Oct  6 18:07 sda1
+brw-rw----   1 root   disk      8,     2 Oct  6 18:07 sda2
+brw-rw----   1 root   disk      8,     3 Oct  6 18:07 sda3
+...
+```
+You can find device files.
+These device files are sometimes called "device nodes".
+
+The first characther in each row represents a type of a device:
+- b: block device
+- c: character device
+- p: pipe device
+- s: socket device
+
+One or two numbers before the date are the *major* and *minor* device numbers that help the kernel identify the device.
+
+## Block device
+Block devices typically refer to disk devices. Since the **total size of the devices are fixed**, they are easily indexed and processes can randomly access to any block.
+
+## Character device
+Character devices work with *data streams*.  
+You can only read characters from or write characters to character devices.  
+**Character devices do not have a size.**
+
+## Pipe device
+skip
+
+## Socket device
+Sockets are special-purpose interfaces that are frequently used for *interprocess communication*.
+
+### Remark
+Not all devices have device files because the block and character device I/O interfaces are not appropriate in all cases (e.g., network devices)
+
+## The issues of /dev device files?
+`/dev` directory is a convenient way for user processes to handle devices, however, there are several issues for kernel:
+- Simple names do not tell much about the info of device
+- Device names are assigned in the order in which they are found (one physical device can get different name on reboot)
+
+To overcome these, Linux kernel offers the *sysfs interface* through files and directories (/sys/devices).
+For example, a hard disk at `/dev/sda` might have the following path in sysfs:
+```
+/sys/devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/block/sda
+```
+Note that these two paths have different purposes. The `/dev` file is for user processes to *use the device*, whereas the `/sys/devices` path is for *viewing information and manage the device***.
+
+
+# Device Name summary
+## Hard disks: /dev/sd\*
+The kernel makes separate device files for the partitions on a disk.
+
+## Terminals: /dev/tty\*, /dev/pts/\*, and /dev/tty
+Terminals are devices for moving characters between a user process and
+an I/O device, usually for text output to a terminal screen.
+
+### Column: Display Modes and VIrtual Consoles
+Linux has two display modes: *text-mode* and *X Window System server (graphics mode)*.  
+Linux supports *virtual consoles* to multiplex the display. Each virtual console can run either in text or graphics mode.
+When you are in text-mode, you can switch between virtual consoles by pressing `ALT-F*` (function key like F1, F2).
+When you are in X11 session, you can do that by `CTRL-ALT-F*`.
+
+*Contents above are entirely based on [How Linux Works, 2nd Edition: What Every Superuser Should Know][how_linux_works]*
+
+[how_linux_works]: http://a.co/d/fxxaVt5

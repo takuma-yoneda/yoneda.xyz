@@ -1,0 +1,63 @@
+---
+title: "Transporter Networks"
+categories: paper
+date: '2022-07-21'
+---
+
+# Abstract
+- A simple model that learns to attend to a local region and predict its spatial displacement
+- 10 unique tabletop manipulation tasks
+- The model could achieve more than 90% success in new configurations using 100 expert demos
+- Opensource Ravens
+- Basically like a deep template matching, where you crop an observation around the object and use it as a template
+
+# Method
+A problem setting is as follows:
+
+$$
+f(o_t) \rightarrow a_t = (\mathcal{T}_\text{pick}, \mathcal{T}_\text{place}) \in \mathcal{A}
+$$
+- $\mathcal{T}_\text{pick}, \mathcal{T}_\text{place}$: the pose of the end effector used to pick / place an object
+
+## Learning to Transport
+Assumptions:
+- $\mathcal{T}_\text{pick}, \mathcal{T}_\text{place} \in \mathbb{R}^2$
+- Immobilizing grasp (i.e., suction gripper)
+These assumptions provides the following setting:
+1. $\mathcal{T}_\textrm{pick}$ is sampled from a distribution of successful pick poses
+2. For each successful pick pose, there's a corresponding distr. of successful place pose ($\mathcal{T}_\text{place}$)
+
+In equation,
+
+$$
+f_\text{pick}(o_t) \rightarrow \mathcal{T}_\text{pick},~~~f_\text{place}(o_t, \mathcal{T}_\text{pick}) \rightarow \mathcal{T}_\text{place}
+$$
+
+## Learning picking
+
+$$
+\mathcal{T}_\text{pick} = \arg \max_{(u, v)} \mathcal{Q}_\text{pick}((u, v)| o_t)
+$$
+- $(u, v)$: pixel location --> We can map each pixel to a pick action :)
+- $\mathcal{Q}$ is Fully Convolutional Network (FCN)
+  - **Translationally equivariant** (i.e., $f_\text{pick}(g \circ o_t ) = g \circ f_\text{pick}(o_t}$)
+
+## Spatially consistent visual representations
+What is spatially consistent?: The appearance of an object remains constant across different camera views
+
+They convert RGB-D images into a spartially consistent form by unprojecting to a 3D point cloud and then rendering into an *orthographic* projection.
+
+
+{/* The goal: to transport our partial crop $o_t[\mathcal{T}_\text{pick}]$ densely across a set of poses {} */}
+$$
+\mathcal{Q}_\text{place}(\tau| o_t, \mathcal{T}_\text{pick}) = \psi(o_t [\mathcal{T}_\text{pick}]) * \phi(o_t)[\tau],~~~\mathcal{T}_\text{place} = \arg \max_{{\tau}_i} \mathcal{Q}_\text{place}(\tau_i | o_t, \mathcal{T}_\text{pick})
+$$
+
+- $\psi(o_t[\mathcal{T}_\text{pick}])$: a dense feature of a cropped observation (*template*)
+- $\phi(o_t)[\tau]$: a dense feature of a crop at pose $\tau$. A pose here is a pixel location (*search area*)
+
+:::messages
+Learning with Planer Rotations: SE(2) ?
+They discretize the rotation into $k$ bins, and then rotate the observation accordingly.
+A trick is to apply FCN $k$ times in parallel, for each rotated $o_t$.
+:::

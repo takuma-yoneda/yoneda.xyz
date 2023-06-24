@@ -1,0 +1,49 @@
+---
+title: "The (Un)surprising Effectiveness of Pre-trained Vision Models for Control"
+categories: paper
+date: '2022-05-23'
+---
+
+A fundamaental question:
+> Can we make a single vision model, pre-trained entirely on out-of-domain datasets, work for different control tasks?
+
+Takeaway:
+- A model pretrained on completely out-of-domain datasets can be competitive or even better than ground-truth state to learn policies (imitation learning)
+- Self-supervised learning provides better features for control policies
+   - Crop augmentations seem more important in SSL compared to color augmentations
+- Early conv layer features are better for MuJoCo (fine-grained control), while later conv layer features a better for semantic tasks (Habitat)
+- Combining features from multiple layers can be competitive or outperform ground-truth state features
+
+## Experiments:
+Habitat_ImageNav_ task:
+- a photo-realistic navigation environment.
+- The agent is given a pair of images at each timestep (current view and target location)
+
+DeepMind Control Suite:
+- A collection of control envrionments simulated in MuJoCo
+
+Adroit:
+- 28-DoF anthromorphic hand manipulation
+- _Relocate_ and _Reorient Pen_ 
+
+Franka Kitchen
+- Franka arm to perform various tasks
+
+### Models
+- ResNet
+   - pre-trained on ImageNet
+- Momentum Contrast (MoCo)
+   - self-supervised method
+   - performs instance discrimination
+   - uses multiple data augmentations (crop, horizontal flip, color jitter)
+- CLIP
+- Random Features
+- From Scratch
+- Ground-Truth Features
+
+### Imitation Learning
+Habitat --> use native solver
+10000 trajectories per scene
+LSTM is used to maintain observation history
+
+MuJoCo --> use a policy trained using state

@@ -1,0 +1,36 @@
+---
+title: "NeRF-Pose: A First-Reconstruct-Then-Regress Approach for Weakly-supervised 6D Object Pose Estimation"
+categories: paper, pose-estimation
+date: '2022-08-26'
+---
+
+# Introduction
+Contributions:
+- A weakly-supervised object pose estimation that requires only 2D segmentation masks and relative camera poses
+- OBJ-NeRF neural network encoding an implicit 3D object representation obtained from weak labels: segmentation masks and relative camera poses
+- Pose regression network that relies on the above representation
+- NeRF-enabled PnP + RANSAC approach for 6D pose estimation
+
+They aim at densely generating accurate 2D-3D correspondences between input images and an implicit NeRF object representation obtained from weak labels.
+
+As with NeRF training, they propose to regress poses of the NeRF reconstructed object with respect to some chosen reference frames.
+# OBJ-NeRF
+Estimate object pose in a camera coordinate system
+Loss:
+1. photometric loss (pixel diff) for the masked pixels
+2. mask loss (mask is predicted based on NeRF transmittance and alpha)
+3. reprojection error of the object center
+
+With the learned canonical pose and neural model, the NOCS map can be rendered.
+
+# Pose Estimation
+They first use YOLOv3 to predict segmentation masks
+Then a pose regression network is trained on images to predict object coordinates $O$ and segmentation mask $M$.
+Finally their NeRF-enabled PnP+RANSAC improves the pose.
+
+## Pose regression
+the loss function consists of predicted mask error and NOCS error.
+NOCS loss contains
+1. average distance between predicted and ground-truth coordinates
+2. coordinate errors in first order ($L_grad$)
+3. coordinate errors in second order ($L_normal$)

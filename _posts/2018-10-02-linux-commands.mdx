@@ -1,0 +1,67 @@
+---
+layout: post
+title:  "How Linux Works -- Command Line Operations --"
+date:   2018-10-02
+categories: jekyll update
+---
+# Listing and Manipulating Processes
+## About ps options
+Confusingly, you can specify options in three different ways -- Unix, BSD, and GNU.  
+Most people use BSD style.
+- `ps x` Show all of your running processes.
+- `ps ax` Show all processes on the system, not just the ones you own.
+- `ps u` Include more detailed information on processes.
+- `ps w` Show full command names, not just what fits on one line.
+
+
+Note that you can combine options like `ps aux`.
+
+
+## Killing Processes
+To terminate a process, send it a signal with the kill command. A signal is a
+message to a process from the kernel.
+There are [plenty of signals][kill_signals].
+The default signal is `TERM` (terminate).
+Instead of killing the process, you can freeze it with:  
+`$ kill -STOP pid`
+and continue with:  
+`$ kill -CONT pid`
+
+The most brutal way to terminate a process is with the `KILL` signal.
+Other signals give the process a chance to clean up after itself, but `KILL`
+does not.
+
+Using ctrl-C to terminate a process that is running in the current terminal is the
+same as using kill to end the process with the `INT` (interrupt) signal.
+
+# File Operations
+## Symbolic Links
+A symbolic link is a file that points to another file or directory.
+
+`$ ln -s target linkname`
+- `-s` specifies a symbolic link
+
+Without `-s`, ln creates a hard link, which points directly to the file date instead of another filename as asymbolic link does.
+This can be quite confusing if you do not have enough knowledge.
+
+## tar
+### compression
+To create an archive, you can use `tar`
+
+`$ tar cvf archive.tar file1 file2 ...`
+- `c` denotes create mode
+- `v` denotes verbose mode
+- `f` denotes file option ( the following argument must be the archive file for tar to create)
+
+### unpacking
+`$ tar xvf archive.tar`  
+
+- `x` denotes extract mode
+By using `t` flag instead of `x`, you can verify the archive\`s basic integrity and print the names of all files inside.
+Adding `p` option preserve original permissions instead of automatically applying `umask` to extracted files.
+
+
+*Contents above are entirely based on [How Linux Works, 2nd Edition: What Every Superuser Should Know][how_linux_works]*
+
+[how_linux_works]: http://a.co/d/fxxaVt5
+[kill_signals]: https://www.linux.org/threads/kill-signals-and-commands-revised.11625/

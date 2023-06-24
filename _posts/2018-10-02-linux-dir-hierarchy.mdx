@@ -1,0 +1,41 @@
+---
+layout: post
+title:  "How Linux Works -- Directory Hierarchy --"
+date:   2018-10-02
+categories: jekyll update
+---
+
+![Linux directory hierarchy](/media/posts/how-linux-works/directory/linux_directory_hierarchy.png =700x)
+# Linux Directory Hierarchy Essentials
+- `/bin` Contains ready-to-run programs (also known as an executables), including most of the basic Unix
+commands such as ls and cp.
+- `/dev` Contains device files. Explained later probably...
+- `/etc` This core system configuration directory (pronounced EHT-see) contains the user password, boot,
+device, networking, and other setup files. Many items in /etc are specific to the machine’s hardware. For
+example, the /etc/X11 directory contains graphics card and window system configurations.
+- `/home` Holds personal directories for regular users.
+- `/lib` An abbreviation for library, this directory holds library files containing code that executables can use.
+There are two types of libraries: static and shared. The /lib directory should contain only shared libraries (cf. /usr/share)
+- `/proc` Provides system statistics through a browsable directory-and-file interface. The /proc
+directory contains information about currently running processes as well as some kernel parameters.
+- `/sys` This directory is similar to /proc in that it provides a device and system interface. 
+- `/sbin` The place for system executables. Programs in /sbin directories relate to system management, so
+regular users usually do not have /sbin components in their command paths.
+- `/tmp` skip
+- `/usr` Although pronounced “user,” this subdirectory has no user files. Instead, it contains a large directory
+hierarchy, including the bulk of the Linux system. 
+- `/var` The variable subdirectory, where programs record runtime information. System logging, user tracking,
+caches, and other files that system programs create and manage are here.
+
+## About /usr directory
+`/usr` is where most of the user-space programs and data reside. In addition to `/usr/bin`, `/usr/sbin`, and `/usr/lib`, `/usr` contains the following:
+- `/include` Holds header files used by the C compiler.
+- `/info` Contains GNU info manuals
+- `/local` Is where administrators can install their own software. Its structure should look like that of / and /usr.
+- `/man` Contains manual pages.
+- `/share` Contains files that should work on other kinds of Unix machines with no loss of functionality. 
+
+
+*Contents above are entirely based on [How Linux Works, 2nd Edition: What Every Superuser Should Know][how_linux_works]*
+
+[how_linux_works]: http://a.co/d/fxxaVt5

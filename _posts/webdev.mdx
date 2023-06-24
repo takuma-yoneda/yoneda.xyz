@@ -1,0 +1,33 @@
+---
+title: "Web Development"
+categories: scratch
+date: '2023-02-19'
+---
+
+# React / NextJS
+## Resources 
+https://nextjs.org/blog/markdown
+> The most popular solution is using [remark](https://remark.js.org/)
+
+https://nextjs.org/docs/advanced-features/using-mdx
+
+MDX is a superset of markdown! (i.e., you can put JSX inside markdown)
+It's nice to include dynamic contents in a markdown.
+
+Okay, converting markdown involves several steps
+1. Convert markdown to an AST (abstract syntax tree)
+2. Convert AST to html
+
+There're several libraries that does conversion
+- markdown-it (This is what `zenn-markdown-html` is based on, which is what I use now; This has been defacto-standard)
+- remark (This seems to be a new option; Documentation is much better here)
+
+I found an [article](https://github.com/benrbray/noteworthy/discussions/16#discussioncomment-905378) that compares these two.
+In remark, `remark` does the step 1 and `rehype` does the step 2
+
+
+The block container thing (message and warning) was done via [markdown-it-container](https://github.com/markdown-it/markdown-it-container) under the hood.
+
+
+## Chrome dev tools
+- [How to toggle dark mode (`prefers-color-scheme` media query)](https://stackoverflow.com/a/67856736/19913466)

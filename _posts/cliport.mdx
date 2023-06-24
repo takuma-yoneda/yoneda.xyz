@@ -1,0 +1,132 @@
+---
+title: "CLIPort: What and Where Pathways for Robotic Manipulation"
+layout: post
+description: "A short summary on CLIPort"
+date: '2022-04-25'
+---
+
+Project Webpage: [https://cliport.github.io/](https://cliport.github.io/)
+## Summary
+Language-conditioned imitation learning built on top of [CLIP](https://arxiv.org/abs/2103.00020) and [Transporter Nets](https://transporternets.github.io/) (hence CLIPort).
+- A two-stream architecture with semantic and spatial pathways for vision-based manipulation
+- The problem formulation is identical to Transporter, except that they condition it on language instructions
+  - Consider a table top manipulation task as a series of _pick_ and _place_ predictions
+  - Use representations that are equivariant to translations and rotations
+- The novelity lies in the proposed two-stream architecture that fuses information from CLIP and Transporter Networks
+
+{/* ## Key components */}
+{/* 1. Manipulation through a two-step primitive: each action is to predict start and final end-effector pose */}
+{/*   - Key: seeing a table top manipulation task as a **series of pick-and-place affordance predictions** */}
+{/* 2. Visual representations of actions that are equivariant to translations and rotations */}
+{/* 3. Two separate pathways for semantic and spatial information */}
+{/*   - semantic: [CLIP](https://arxiv.org/abs/2103.00020) */}
+{/*   - spatial: [Transporter](https://transporternets.github.io/) */}
+{/* 4. Language-conditioned policies for specifying goals and transferring concepts across tasks */}
+
+{/* NOTE: 1 and 2 are exactly Transporter */}
+
+## Input / Output
+
+$$
+(o_t, l_t) \rightarrow \text{[CLIPort policy]} \rightarrow (\mathcal{T}_\text{pick}, \mathcal{T}_\text{place}) = {a}_t \in \mathcal{A}
+$$
+
+- $o_t$ : top-down visual observation (RGB-D)
+- $l_t$ : Language instruction
+- $\mathcal{T}_\text{pick}, \mathcal{T}_\text{place}$ : positions and orientation ($x, y, \theta$) on the top-down view for _pick_ and _place_
+
+An expert demonstration $\zeta_i$ is:
+
+$$
+\zeta_i = \{(o_1, l_1, a_1), (o_2, l_2, a_2), ~\ldots~\}
+$$
+
+{/* Networks: */}
+{/* - $$f_\text{pick}$$: FFN for $$Q_\text{pick}$$ */}
+{/* - $$\Phi_\text{query}, \Phi_\text{key}$$: FCN for $$Q_\text{place}$$ */}
+
+## Models
+### **Pick Network**
+
+$$
+\mathcal{T}_\text{pick} = \text{argmax}_{(u,v)}~Q_\text{pick} ((u, v)| (o_t, l_t))
+$$
+
+- $(u, v)$: predicted  pixel position for _pick_
+
+What if pick orientation matters?:  
+In their parallel gripper experiment, they
+>  separate the pick module $Q_\text{pick}$ into two components: locator and rotator. 
+> ...
+> The rotator takes a $64 \times 64$ crop of the observation at $(u, v)$ along with the language input and predicts a discrete rotation angle by selecting from one of $k$ rotated crops.
+
+Note that they use suction gripper in their main experiment, which can ignore pick orientation.
+{/* Why doesn't it contain orientation?:  Because that's how the authors set up the experiments.   */}
+{/* An action in the demonstrations they expect is: $\mathcal{T}_\text{pick} \in \mathbb{R}^{H\times W \times 1}, \mathcal{T}_\text{place} \in \mathbb{R}^{H \times W \times 36}$ */}
+
+### **Place Network**
+
+$$
+\mathcal{T}_\text{place} = \text{argmax}_{\Delta \tau}~Q_\text{place} (\Delta \tau | (o_t, l_t), \mathcal{T}_\text{pick}),
+$$
+
+where
+
+$$
+Q_\text{place}(\Delta \tau | (o_t, l_t), \mathcal{T}_\text{pick}) = ({\color{blue} \Phi_\text{query} (o'_t, l_t)} * {\color{green} \Phi_\text{key}(o_t, l_t)})[\Delta \tau]
+$$
+
+$$
+{\color{blue} o'_t} = \text{Crop}(o_t, \mathcal{T}_\text{pick})
+$$
+
+- $*$ denotes cross-correlation. This is exactly what [Transporter](https://transporternets.github.io/) does
+- $\text{Crop}(o_t, \mathcal{T}_\text{pick})$: crops a $c \times c$ patch from $o_t$ centered at $\mathcal{T}_\text{pick}$
+- $\Delta \tau$: placement pose $(x, y, \theta)$. $\theta$ is discretized into $k = 36$ angles
+
+In practice, the cropped patch is rotated in $k = 36$ ways before the query network, and cross-correlation is computed for each.
+
+### **Architecture**
+$f_\text{pick}, \Phi_\text{query}, \Phi_\text{key}$: These are implemented as **the same two-stream NN architecture** (described below).
+
+---
+
+## Two stream architecture details
+
+{/* ![architecture]({{ page.baseimg }}/architecture.png){:style="display:block; margin-left:auto; margin-right:auto; width: 90%"} */}
+![architecture](/media/posts/cliport/architecture.png =950x)
+
+### **Spatial stream**
+Identical to the original Transporter.  
+Output of hidden layer: $d^{(l)}_t \in \mathbb{R}^{h \times w \times C'}$ is merged into the semantic stream as described below.
+
+### **Semantic stream**
+The language instruction $l_t$:
+
+$$
+l_t \rightarrow \text{[CLIP sentence encoder]} \rightarrow g_t \in \mathbb{R}^{1 \times 1 \times C} \rightarrow \text{[tile spatially]} \rightarrow g_t^{(l)} \in \mathbb{R}^{h \times w \times C}
+$$
+
+Top-down observation $\tilde{o}_t$ (excluding depth as CLIP cannot handle it):
+
+$$
+\tilde{o}_t \rightarrow \text{[CLIP vis. enc.]} \rightarrow v_t^{(0)} \in \mathbb{R}^{7 \times 7 \times 2048} \rightarrow \text{[dec. layers]} 
+$$
+
+$$
+\rightarrow v_t^{(l)} \in \mathbb{R}^{h \times w \times C} \rightarrow {\color{blue} [v_t^{(l)} \odot g_t^{(l)}; d_t^{(l)}]} \rightarrow \text{[dec. layer]} \rightarrow v_t^{(l+1)} \rightarrow \cdots
+$$
+
+- $\odot$: element-wise product
+- <span style={{'color' :'blue'}}>concatenation</span> happens along with channel dimenstion (spatial dims $(h \times w)$ are identical)
+    - 1 x 1 conv is immediately applied to bring it back to $\mathbb{R}^{h\times w \times C}$
+
+**What is the output of this two-stream network?**  
+Since $f_\text{pick}, \Phi_\text{query}, \Phi_\text{key}$ are implemented as this two-stream network, the output is always $\mathbb{R}^{H \times W \times 1}$, where $H, W$ matches observation size if for $f_\text{pick}$ and $\Phi_\text{query}$, and cropped observation size if it is for $\Phi_\text{key}$.
+
+{/* Then this goal feature is multiplied with CLIP decoder feature (element-wise product): */}
+{/* $$ */}
+{/* v_t^{(l)} \odot g_t^{(l)}~~(l \in ~\text{(3 subsequent layers after the botttleneck)}) */}
+{/* $$ */}
+
+{/* Why three subsequent layers?: This is inspired by [LingUNet](https://arxiv.org/abs/1809.00786) */}
