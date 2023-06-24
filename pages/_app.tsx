@@ -7,8 +7,14 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import "katex/dist/katex.min.css"
 import '@/styles/prism-material-dark.css'
 // import '@/styles/prism-one-dark.css'
+import { Analytics } from '@vercel/analytics/react';
 
 
 export default function App({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+  return (
+    <>
+      <Component {...pageProps} />
+      <Analytics />
+    </>
+  )
 }
