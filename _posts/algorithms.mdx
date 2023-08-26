@@ -1,0 +1,158 @@
+---
+title: "Algorithms"
+categories: notes scratch
+date: '2022-11-02'
+---
+# Reference
+- [プログラミングコンテスト攻略のためのアルゴリズムとデータ構造](https://www.amazon.co.jp/%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0%E3%82%B3%E3%83%B3%E3%83%86%E3%82%B9%E3%83%88%E6%94%BB%E7%95%A5%E3%81%AE%E3%81%9F%E3%82%81%E3%81%AE%E3%82%A2%E3%83%AB%E3%82%B4%E3%83%AA%E3%82%BA%E3%83%A0%E3%81%A8%E3%83%87%E3%83%BC%E3%82%BF%E6%A7%8B%E9%80%A0-%E6%B8%A1%E9%83%A8-%E6%9C%89%E9%9A%86-ebook/dp/B00U5MVXZO)
+- [Cracking the Coding Interview]()
+
+# Sort
+## Easy ones
+### Insertion sort
+### Bubble sort
+### Selection sort
+
+### Merge sort
+1. Divide an array of $n$ elements into sub-arrays of $n/2$ elements [**Divide**]
+2. Sort each of the sub-arrays with Merge Sort [**Solve**]
+3. Merge the sorted sub-arrays [**Conquer**]
+
+**Efficient merge**
+Given sub-arrays of $n_1$ and $n_2$ elements, it merges them in $O(n_1 + n_2)$:
+Compare a pair of elements from the beginning of sub-arrays, put down the small one, and move to the next.
+This is a correct way to merge only because these sub-arrays are already sorted.
+
+**Time Complexity**
+Dividing an array of $n$ elements takes $\log_2 n$ steps to reach the leaf.
+Merge takes $O(n)$ time, thus time complexity is $O(n\log n)$
+
+
+### Partition (prep for Quick sort)
+partition($A$, $0$, $N$) divides array $A[0:N]$ into two sub-arrays $A[0:q-1]$ and $A[q+1:N]$, and return $q$.
+All the elements in the first subarray is smaller than $A[q]$, and those in the second subarray is larger than $A[q]$.
+
+![partition](/media/posts/algorithms/partition.jpg =400x)
+
+At every step, $j$ always increments by one, and decides which group $A[j]$ should go into.
+:::message
+How do we move $A[j]$ to the correct group?
+- If $A[j] > A[N]$, just increment $j$
+- If $A[j] \leq A[N]$, increment $i$, and then exchange $A[i]$ and $A[j]$.
+:::
+
+Time complexity is $O(n)$, as $j$ goes from $0$ to $N-1$.
+
+### Quick sort
+1. Divide an array into two sub-arrays with Partition algorithm [**Divide**]
+2. Sort each of the sub-arrays with Quick Sort [**Solve**]
+
+The average time complexity of Quick sort is $O(n \log n)$, and it's the fastest sorting algorithm in most cases. However, if you pick the value $x$ (in the figure above) in the same way all the time, it becomes $O(n^2)$ in the worst case.
+
+
+# Tree
+## Tree walk
+- Preorder Tree walk: [root] -> [left subtree] -> [right subtree]
+- Inorder Tree walk: [left subtree] -> [root] -> [right subtree]
+- Postorder Tree walk: [left subtree] -> [right subtree] -> [root]
+
+```python
+def preorder(node):
+    if node is None:
+        return
+    print(node)
+    preorder(T[node].left)
+    preorder(T[node].right)
+    
+def inorder(node):
+    if node is None:
+        return
+    inorder(T[node].left)
+    print(node)
+    inorder(T[node].right)
+    
+def postorder(node):
+    if node is None:
+        return
+    postorder(T[node].left)
+    postorder(T[node].right)
+    print(node)
+```
+
+Time complexity is $O(n)$ as it visits each node exactly once.
+
+## Binary Heap
+Binary heap is a **complete binary tree** that meets:
+- max-heap (min-heap): the value of a node is smaller (larger) or equal to its parent
+
+There are no constraints between sibling node values.
+A binary heap is represented as an array with 1-origin.
+
+It has a very nice property that, given a node index $i$, 
+- parent: $\left\lfloor i/2 \right\rfloor$
+- left child: $2i$
+- right child: $2(i+1)$
+![partition](/media/posts/algorithms/binary_heap.jpg =150x)
+
+:::message
+Complete binary tree:
+All the leaves on the left side is filled, and the maximum difference of leaves' depths is one or zero.
+:::
+
+
+# Dynamic Programming
+## Longest Common Subsequence (LCS)
+Given a pair of sequences $X=\{x_1, \ldots, x_m\}$ and $Y=\{y_1, \ldots, y_n\}$, LCS asks to return a longest common subsequence of them.
+NOTE: $\{x_1, x_3, x_5\}$ is a subsequence of $X$ (no need to be consecutive in the original sequence!!)
+
+Let's define $X_m = \{x_1, x_2, \ldots, x_m\}, Y_n = \{y_1, y_2, \ldots, y_n\}$, and think about LCS of $X_m$ and $Y_n$.
+If $x_m = y_n$,
+
+$$
+\text{LCS}(X_m, Y_n) = \text{LCS}(X_{m-1}, Y_{n-1}) + x_m
+$$
+{/* Note that adding $x_m$ is same as adding $y_n$ */}
+
+If $x_m \neq y_n$,
+
+$$
+\text{LCS}(X_m, Y_n) = \text{ReturnLongerOne}\big\{\text{LCS}(X_{m-1}, Y_n),~\text{LCS}(X_m, Y_{n-1})\big\}
+$$
+
+Time complexity is $O(mn)$.
+
+# Keywords
+Cracking the coding interviews
+
+## Trees (+ Graphs)
+- Binary Tree vs Binary Search tree
+    - In a Binary search tree, every node (and its descendants) satisifies a specific ordering
+- Balanced vs Unbalanced
+    - Complete Binary Trees: every level of the tree is fully filled, except for perhaps the last level (all nodes are as far left as possible)
+    - Full Binary Trees: every node has either zero or two children
+    - Perfect Binary Trees: both full and complete
+- Binary Tree Traversal
+    - In-order traversal: left -> root -> right
+    - Pre-order traversal: root -> left -> right
+    - Post-order traversal: left -> right -> root
+- Binary Heaps (Min-Heaps and Max-Heaps)
+    - is a complete binary tree
+    - Min-Heap: every node is smaller than its children (thus, root is the minimum)
+    - Two key operations: **insert** and **extract min element**
+    - Insert: start at the bottom level, and then swap with its parent until it's in the correct order
+        - "Bubble up" the minimum element
+    - Extract min element: Finding the min element is easy (always at the root)
+        - 1. Replace the minimum element (i.e., root) with the last element (bottommost, rightmost)
+        - 2. "Bubble down" the new root by swapping iteratively
+
+- Depth-First Search (DFS) and Breadth-First Search (BFS)
+    - Implementation:
+        - DFS can be simply implemented with recursion
+        - BFS a bit tricky: Use a *queue*
+    - Pros and Cons:
+        - DFS: simpler to implement, uses less memory, but might not find the shortest path (in an unweighted graph (why?))
+        - BFS: **preferred for finding a (shortest) path**, but uses more memory (queue)
+            - To find the shortest path from `s` to `t` (assume running DFS / BFS from `s`), it's a good idea to *stay close* to `s` (BFS) rather than going far away (DFS)
+- Bidirectional Search
+    - To find the shortest path between `s` and `t`
+    - Much more efficient than BFS for this purpose
