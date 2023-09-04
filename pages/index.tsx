@@ -16,8 +16,8 @@ interface RenderAuthorsProps {
 const publications = [
   {"title": "Cold Diffusion on the Replay Buffer: Learning to Plan from Known Good States",
   "authors": ["Zidan Wang", "Takeru Oba", "Takuma Yoneda", "Rui Shen", "Matthew Walter", "Bradly C. Stadie"],
-  "note": "In submission",
-  "tooltip": "In submisssion; The draft will be available soon."},
+  "note": "To appear in CoRL 2023",
+  "tooltip": "Editing camera-ready now..., The draft will be available soon."},
   {"title": "Statler: STATe-maintaining Language models for Embodied Reasoning",
   "authors": ["Takuma Yoneda*", "Jiading Fang*", "Peng Li*", "Huanyu Zhang*", "Tianchong Jiang", "Ben Picker", "David Yunis", "Shengjie Lin", "Luzhe Sun", "Richard Xu", "Hongyuan Mei", "Matthew Walter"],
   "note": "In submission",
@@ -77,7 +77,7 @@ const Intro = () => {
           My research interest lies in the intersection of Reinforcement Learning and Natural Language Processing, especially in the context of robotics.
       </p>
       <p>
-          In the past, I have interned at several places including <Link href="https://mr.cs.ucl.ac.uk/">UCL</Link>(2018 summer) and <Link href="https://www.preferred.jp/en/">Preferred Networks</Link> (2019 summer; known for <Link href="https://github.com/chainer/chainer">Chainer</Link>).
+          In the past, I have interned at several places including <Link href="https://mr.cs.ucl.ac.uk/">UCL</Link>(2018 summer) and <Link href="https://www.preferred.jp/en/">Preferred Networks</Link> (2019 summer; PFN is best known for <Link href="https://github.com/chainer/chainer">Chainer</Link>).
           <br />
           I am now at <Link href="https://ttic.edu/ripl/">Robot Intelligence through Perception Lab</Link>{' '}
           working with <Link href="https://bstadie.github.io/">Bradly Stadie</Link> and <Link href="https://ttic.uchicago.edu/~mwalter/">Matthew R. Walter</Link>.
