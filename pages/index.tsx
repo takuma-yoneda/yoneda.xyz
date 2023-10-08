@@ -8,6 +8,10 @@ import Layout from '@/components/Layout'
 import NameCard from '@/components/NameCard'
 import SectionHeading from '@/components/SectionHeading'
 
+import Toggle from "react-toggle";
+import { useMediaQuery } from "react-responsive";
+
+
 interface RenderAuthorsProps {
   authors: string[];
   targetAuthor: string;
@@ -17,15 +21,17 @@ const publications = [
   {"title": "Cold Diffusion on the Replay Buffer: Learning to Plan from Known Good States",
   "authors": ["Zidan Wang", "Takeru Oba", "Takuma Yoneda", "Rui Shen", "Matthew Walter", "Bradly C. Stadie"],
   "note": "To appear in CoRL 2023",
-  "tooltip": "Editing camera-ready now..., The draft will be available soon."},
+  "tooltip": "The draft will be available soon.",
+  // "url": "https://openreview.net/pdf?id=AyRr_i028w"
+  },
   {"title": "Statler: STATe-maintaining Language models for Embodied Reasoning",
   "authors": ["Takuma Yoneda*", "Jiading Fang*", "Peng Li*", "Huanyu Zhang*", "Tianchong Jiang", "Ben Picker", "David Yunis", "Shengjie Lin", "Luzhe Sun", "Richard Xu", "Hongyuan Mei", "Matthew Walter"],
   "note": "In submission",
   "url": "http://arxiv.org/abs/2306.17840"},
   {"title": "Blending Imitation and Reinforcement Learning for Robust Policy Improvement",
   "authors": ["Xuefeng Liu", "Takuma Yoneda", "Matthew Walter", "Yuxin Chen", "Rick L. Stevens"],
-  "note": "In submission",
-  "tooltip": "In submisssion; The draft will be available soon."},
+  "url": "https://arxiv.org/abs/2310.01737",
+  "note": "In submission"},
   {"title": "Active Policy Improvement from Multiple Black-box Oracles",
   "authors": ["Xuefeng Liu*", "Takuma Yoneda*", "Chaoqi Wang*", "Matthew Walter", "Yuxin Chen"],
   "note": "ICML 2023",
@@ -129,19 +135,31 @@ const Publications = () => {
       <SectionHeading>Publications (<Link href='https://scholar.google.com/citations?user=EtYv_AIAAAAJ&hl=en'>Google Scholar</Link>)</SectionHeading>
       <ul className='list-disc list-inside'>
         {publications.map((pub, index) => (
-          <li key={index}>
-            {pub.url ? (
-              <Link href={pub.url} className="font-medium"> {pub.title} </Link>
-            ) : (
-              pub.tooltip ? (
-                <div className="tooltip" data-tip={pub.tooltip}>
-                  <a className="font-medium">{pub.title}</a>
-                </div>) : (
-                  <a className="font-medium">{pub.title}</a>
-              )
-            )}
-            <div><RenderAuthors authors={pub.authors} targetAuthor="Takuma Yoneda" /></div>
-            {pub.note ? (<p className='text-sm italic'>{pub.note}</p>) : (<></>)}
+          <li key={index} style={{textAlign: "left", listStyleType: "none"}}>
+            <div className={styles.pub_item + ' ' + styles.pub_item_dark}>
+              {pub.url ? (
+                <Link href={pub.url} className="font-medium"> {pub.title} </Link>
+              ) : (
+                true ? (
+                  <div className={styles.tooltip}>
+                    <a className="font-medium">{pub.title}</a>
+                    <div className={styles.top}>
+                      <p>{pub.tooltip}</p>
+                    </div>
+                  </div>
+                  /* When I was using DaisyUI: */
+                  // <div className={styles.tooltip}>
+                  //   <div className={styles.top}>
+                  //     <a className="font-medium">{pub.title}</a>
+                  //   </div>
+                  // </div>)
+                  ) : (
+                    <a className="font-medium">{pub.title}</a>
+                )
+              )}
+              <div><RenderAuthors authors={pub.authors} targetAuthor="Takuma Yoneda" /></div>
+              {pub.note ? (<p className='text-sm italic'>{pub.note}</p>) : (<></>)}
+            </div>
           </li>
         ))}
       </ul>

@@ -28,21 +28,47 @@
   --text-color-dark: #d0d0d0;
   --dark: #282828;
   --light: #ffffff ;
-  --font-weight: 300;
 
-  background-color: var(--light);
-  color: var(--text-color-light);
+  /* background-color: var(--light); */
 
   /* To pass it to rgba function, it cannot be hex form*/
   /* --mix-color: 148, 148, 148; */
+
+  /* Default config */
+  /* --background-color: var(--light);
+  --text-color: var(--text-color-light);
+  --font-weight: 340;
+
+  background-color: var(--background-color);
+  color: var(--text-color); */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    background-color: var(--dark);
-    color: var(--text-color-dark);
-  }
+body {
+  --background-color: var(--light);
+  --text-color: var(--text-color-light);
+  --font-weight: 340;
+
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
+
+body.dark {
+  --background-color: var(--dark);
+  --text-color: var(--text-color-dark);
+  --font-weight: 300;
+}
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: var(--dark);
+    --text-color: var(--text-color-dark);
+    --font-weight: 300;
+  }
+} */
+
+/* :root {
+  background-color: var(--background-color);
+} */
 
 body {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -53,6 +79,7 @@ body {
     -moz-osx-font-smoothing: grayscale;
     margin: 0;
     /* background: rgba(var(--mix-color), 0.01); */
+    transition: all 1s ease-in-out;
 }
 
 a {
@@ -72,4 +99,12 @@ code {
   font-size: .85em;
   border-radius: 4px;
   vertical-align: 0.08em;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+table, th, td {
+  border: 1px solid;
 }

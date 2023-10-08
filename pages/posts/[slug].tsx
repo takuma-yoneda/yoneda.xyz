@@ -80,6 +80,11 @@ export default function Post({ post }: Props) {
         </blockquote>
       </>
     ),
+    td: ({ children }: ComponentProps) => (
+      <td className='not-prose border border-zinc-400 dark:border-stone-400 px-4 py-2'>
+        {children}
+      </td>
+    ),
     Collapse: Collapse,
     // ) as FunctionComponent<DetailedHTMLProps<BlockquoteHTMLAttributes<HTMLQuoteElement>, HTMLQuoteElement>>,
       /* code: ({ children }) => <code className='inline-block bg-slate-200 text-[0.8rem] font-mono rounded py-0 px-1'>{children}</code> */
