@@ -1,0 +1,39 @@
+---
+title: "Information Theory - Entropy"
+categories: notes scratch
+date: '2022-10-31'
+---
+| Name                  | Equation                                                                                                                                                                         | Interpretation                                                                                                      |
+|:---------------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| Entropy               | $$H(P) = E_{x\sim P} [- \ln P(x)]$$                                                                                                                                              | Average of minus log probability.                                                                                   |
+| Cross-Entropy         | $$H(P, Q) = E_{x \sim P} [- \ln Q(x)]$$                                                                                                                                          | The average number of nats (bits) to represent $x$ using the imperfect code defined by $Q$ (data compression view). |
+| KL Divergence         | $$\begin{aligned} KL(P, Q) &= H(P, Q) - H(P) \\ &= E_{x\sim P} [-\ln \frac{Q(x)}{P(x)}] \end{aligned}$$                                                                            | How many more nats (bits) is required to represent $x$ with code $Q$ compared with the optimal code ($P$).          |
+| \*Conditional Entropy | $$\begin{aligned} H(P(x\|y)) &= E_{x, y \sim P(x,y)}[-\ln \frac{P(x, y)}{P(y)}] \\ &= H(P(x, y)) - H(P(y)) \end{aligned}$$                                                         |                                                                                                                     |
+| \*Mutual Information  | $$\begin{aligned} I(x, y) &= KL(P(x, y), P(x)P(y)) \\ &= E_{x, y \sim P(x, y)}[-\ln\frac{P(x)P(y)}{P(x, y)}] \\ &= H(P(y)) - H(P(y \| x)) \\ &= H(P(x)) - H(P(x \| y)) \end{aligned}$$ | How much knowing $x$ helps to know $y$.                                                                              |
+
+
+<br />
+KL Divergence is always non-negative (hence MI also is):
+
+$$
+\begin{align*}
+H(P, Q) \geq H(P) &\Leftrightarrow KL(P, Q) \geq 0 \\
+&\Leftrightarrow I(P(x, y)) \geq 0
+\end{align*}
+$$
+
+<Collapse title="Proof: Non-negativity of KL divergence">
+$$
+\begin{align*}
+KL(P, Q) &= {\color{blue}\mathbb{E}_{x \sim P}} [{\color{brown}- \ln} \frac{Q(x)}{P(x)}] \\
+&\geq {\color{brown} -\ln} {\color{blue}\mathbb{E}_{x \sim P}}[\frac{Q(x)}{P(x)}] ~~~~~~(\because \text{Jensen's inequality})\\
+&= -\ln \sum_x P(x) \frac{Q(x)}{P(x)} \\
+&= -\ln \sum_x Q(x) = 0
+\end{align*}
+$$
+</Collapse>
+
+
+## Reference
+- [TTIC 31230: Fundamentals of Deep Learning](https://mcallester.github.io/ttic-31230/)
+

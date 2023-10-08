@@ -52,6 +52,25 @@ DNS can be also configured in `nmcli`.
 $ sudo nmcli con edit 'Wired connection 1'
 ```
 
+**Adding a new connection:**
+```bash
+$ nmcli conn add type ethernet con-name 'RIPL Wall LAN' ifname enp6s0
+```
+
+### Default gateway
+**Check current default gateway**
+```sh
+$ ip route show
+# or
+$ ip r
+```
+
+**Set default gateway**
+```sh
+$ ip route add default via 128.135.8.1 enp6s0
+```
+Interface is optional.
+
 
 # Install NVIDIA driver
 [ArchWiki (NVIDIA)](https://wiki.archlinux.org/title/NVIDIA#Installation)
