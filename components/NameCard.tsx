@@ -33,6 +33,7 @@ const NameCard: React.FC<NameCardProps> = ({image_url, name, altname, mobile}) =
             }}
           >
             <img src={image_url}
+                 alt={name}
               /* style={{ */
               /* 'borderRadius': '25px', */
               /* }} */
