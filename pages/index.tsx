@@ -223,7 +223,7 @@ export default function Home() {
             mobile={false}
           />
           <div className='flex flex-col items-center'>
-            <div className='max-w-screen-md'>
+            <div className='w-5/6 md:max-w-screen-md'>
               <Intro />
               <Publications />
               <Internships />
