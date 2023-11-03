@@ -144,19 +144,17 @@ const Publications = () => {
               {pub.url ? (
                 <Link href={pub.url} className="font-medium"> {pub.title} </Link>
               ) : (
-                true ? (
-                  <div className={styles.tooltip}>
-                    <a className="font-medium">{pub.title}</a>
-                    <div className={styles.top}>
-                      <p>{pub.tooltip}</p>
-                    </div>
-                  </div>
-                  /* When I was using DaisyUI: */
+                // TEMP: with `true`, pub.tooltip fails when no item has `tooltip` key, even if that part is not evaluated. I guess nextjs build is compiling all the conditional branches?
+                false ? (
+                  // dummy
+                  <div></div>
+
                   // <div className={styles.tooltip}>
+                  //   <a className="font-medium">{pub.title}</a>
                   //   <div className={styles.top}>
-                  //     <a className="font-medium">{pub.title}</a>
+                  //     <p>{pub.tooltip}</p>
                   //   </div>
-                  // </div>)
+                  // </div>
                   ) : (
                     <a className="font-medium">{pub.title}</a>
                 )
