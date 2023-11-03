@@ -32,8 +32,8 @@ const publications = [
   "note": "In submission"},
   {"title": "Cold Diffusion on the Replay Buffer: Learning to Plan from Known Good States",
   "authors": ["Zidan Wang", "Takeru Oba", "Takuma Yoneda", "Rui Shen", "Matthew Walter", "Bradly C. Stadie"],
-  "note": "To appear in CoRL 2023",
-  "tooltip": "The draft will be available soon.",
+  "url": "https://arxiv.org/abs/2310.13914",
+  "note": "CoRL 2023",
   // "url": "https://openreview.net/pdf?id=AyRr_i028w"
   },
   {"title": "Active Policy Improvement from Multiple Black-box Oracles",
