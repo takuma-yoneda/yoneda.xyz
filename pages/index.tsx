@@ -93,7 +93,8 @@ const Intro = () => {
         TTIC featured me recently: <Link href="https://www.ttic.edu/student-highlights/yoneda/">Takuma Yoneda - Student Highlight</Link>
       </p>
       <p className='my-6 text-xl'>
-        <strong>🔥 I&apos;m on the job market now 🔥</strong><br />Please feel free to reach out: takuma (at) ttic.edu<br />My CV is <Link href="/cv.pdf">here</Link>
+        <strong>🔥 I&apos;m on the job market now 🔥</strong><br />Please feel free to reach out: takuma (at) ttic.edu<br />
+        You can find <Link href="/takuma-yoneda-cv.pdf">my Curriculum Vitae here</Link>
       </p>
         
     </>
