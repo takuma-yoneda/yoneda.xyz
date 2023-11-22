@@ -71,7 +71,11 @@ const publications = [
   {"title": "UCL Machine Reading Group: Four Factor Framework For Fact Finding (HexaF)",
   "authors": ["Takuma Yoneda", "Jeff Mitchell", "Johannes Welbl", "Pontus Stenetorp", "Sebastian Riedel"],
   "url": "https://www.aclweb.org/anthology/W18-5515",
-  "note": "Proceedings of the First Workshop on Fact Extraction and VERification (FEVER), EMNLP 2018"}
+  "note": "Proceedings of the First Workshop on Fact Extraction and VERification (FEVER), EMNLP 2018"},
+  {"title": "Bib2vec: An Embedding-based Search System for Bibliographic Information",
+  "authors": ["Takuma Yoneda", "Koki Mori", "Makoto Miwa", "Yutaka Sasaki"],
+  "url": "https://arxiv.org/pdf/1706.05122",
+  "note": "EACL 2017"},
 ];
 
 const Intro = () => {
