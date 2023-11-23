@@ -1,6 +1,6 @@
 ---
 title: "Linear Regression"
-categories: scratch
+categories: scratch, intro-to-ml
 date: 2023-11-22
 ---
 
@@ -151,7 +151,15 @@ $$
 
 Solving for $\bm{w}$ gives us
 $$
-\bm{w}^* = \underbrace{{\color{magenta} \left( X^T X \right)^{-1} X^T}}_{\text{Moore-Penrose pseudoinverse}} \bm{y}
+\bm{w}^* = \underbrace{{\color{magenta} \left( X^T X \right)^{-1} X^T}}_{X^\dagger \text{: Moore-Penrose pseudoinverse}} \bm{y}
+$$
+
+Let's use this to predict $\hat{y}_t$ for a new datapoint $\bm{x}_t$:
+$$
+\begin{align*}
+\hat{y}_t &= \bm{w}^{*T} \bm{x}_t \\
+&= \bm{y}^T {\color{magenta} X^\dagger}^T \bm{x}_t
+\end{align*}
 $$
 
 ---
