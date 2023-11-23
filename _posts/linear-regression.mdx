@@ -1,0 +1,162 @@
+---
+title: "Linear Regression"
+categories: scratch
+date: 2023-11-22
+---
+
+Linear function:
+$$
+\begin{align*}
+f(\bm{x}; \bm{w}) &\doteq {\color{magenta} w_0} + w_1 x_1 + \ldots + w_d x_d \\
+&= \bm{w} \cdot \bm{x}
+\end{align*}
+$$
+Note that we set $x_0 = 1$, resulting in $\bm{x} \in \mathbb{R}^{d+1}$ and $\bm{w} \in \mathbb{R}^{d+1}$.
+
+Given datapoints $X$ and labels $\bm{y}$:
+$$
+\begin{align*}
+\bm{x}_1, \bm{x}_2, \ldots, \bm{x}_N &\in X~&&(\bm{x}_i \in \mathbb{R}^{d+1}) \\
+y_1, y_2, \ldots, y_N &\in \bm{y}~&&(y_i \in \mathbb{R}),
+\end{align*}
+$$
+Squared loss $L(\bm{w}, X, \bm{y})$ can be defined as:
+$$
+\begin{align*}
+L(\bm{w}, X, \bm{y}) &\doteq \frac{1}{N} \sum_{i=1}^N \left( y_i - f(\bm{x}_i; \bm{w}) \right)^2 \\
+&= \frac{1}{N} \sum_{i=1}^N \left( y_i - \bm{w} \cdot \bm{x}_i \right)^2
+\end{align*}
+$$
+
+Knowing that this is convex, the first necessary condition to find the minimum is
+$$
+\frac{\partial}{\partial \bm{w}} L(\bm{w}, X, \bm{y}) = \bm{0}
+$$
+
+Let's calculate this for $w_0$ first:
+$$
+\begin{align*}
+\frac{\partial}{\partial w_0}L(w) &= \frac{\partial}{\partial w_0} \big[ \frac{1}{N} \sum_{i=1}^N \left( y_i - \bm{w} \cdot \bm{x}_i \right)^2 \big] \\
+&= -\frac{2}{N} \sum_{i=1}^N \left( y_i - \bm{w} \cdot \bm{x}_i \right) = 0 \\
+\end{align*}
+$$
+Therefore, a necessary condition for $w_0$ is:
+$$
+\sum_{i=1}^N \left( y_i - \bm{w} \cdot \bm{x}_i \right) = 0
+$$
+
+Interpretation: the average of the residuals (also called *errors*) is zero.
+
+In the same way, for $w_j (j \neq 0)$:
+$$
+\begin{align*}
+\frac{\partial}{\partial w_j}L(w) &= \frac{\partial}{\partial w_j} \big[ \frac{1}{N} \sum_{i=1}^N \left( y_i - \bm{w} \cdot \bm{x}_i \right)^2 \big] \\
+&= -\frac{2}{N} \sum_{i=1}^N \left( y_i - \bm{w} \cdot \bm{x}_i \right) x_{ij} = 0 \\
+\end{align*}
+$$
+Hence, another necessary condition for $w_j (j \neq 0)$ is:
+$$
+\sum_{i=1}^N \left( y_i - \bm{w} \cdot \bm{x}_i \right) x_{ij} = 0
+$$
+
+Interpretation: the residuals (or errors) are uncorrelated with the data.
+
+**In summary:**
+$$
+\left\{ \,
+\begin{align*}
+&\sum_{i=1}^N \left( y_i - \bm{w} \cdot \bm{x}_i \right) \hphantom{x_{ij}} = 0 \\
+&\sum_{i=1}^N \left( y_i - \bm{w} \cdot \bm{x}_i \right) x_{ij} = 0~~(j = 1, \ldots, d)
+\end{align*}
+\right.
+$$
+---
+## Least squares in matrix form
+$$
+\begin{align*}
+X &\doteq
+\begin{bmatrix}
+  1 & x_{11} & x_{12} & \cdots & x_{1d} \\
+  1 & x_{21} & x_{22} & \cdots & x_{2d} \\
+  \vdots  & \vdots & \vdots & \ddots & \vdots \\
+  1 & x_{N1} & x_{N2} & \cdots & x_{Nd} \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+  \text{------} & \bm{x}_1^T & \text{------} \\
+  \text{------} & \bm{x}_2^T & \text{------} \\
+  \vdots & \vdots & \vdots \\
+  \text{------} & \bm{x}_N^T & \text{------} \\
+\end{bmatrix}\\
+
+\bm{y} &\doteq
+\begin{bmatrix}
+y_1 \\
+y_2 \\
+\vdots \\
+y_N
+\end{bmatrix},
+\bm{w} \doteq
+\begin{bmatrix}
+w_1 \\
+w_2 \\
+\vdots \\
+w_d
+\end{bmatrix}
+\end{align*}
+$$
+
+Now, how can we express errors (residuals)?
+$$
+\bm{y} - X \bm{w}
+$$
+Hence, the loss $L(\bm{w})$ can be expressed as:
+$$
+L(\bm{w}) = \frac{1}{N} \left( \bm{y} - X \bm{w} \right)^T \left( \bm{y} - X \bm{w} \right)
+$$
+
+Let's find the minimum of $L(\bm{w})$. Again, we use $\frac{\partial}{\partial \bm{w}} L(\bm{w}) = \bm{0}$  
+Also note that given two vectors $\bm{a}, \bm{b} \in \mathbb{R}^d$, $\bm{a}^T \bm{b} = \bm{b}^T \bm{a}$.
+$$
+\begin{align*}
+\frac{\partial}{\partial \bm{w}} L(\bm{w}) &= \frac{1}{N} \frac{\partial}{\partial \bm{w}} \big[ \bm{y}^T \bm{y} - \bm{y}^T X \bm{w} - \bm{w}^T X^T \bm{y} + \bm{w}^T X^T X \bm{w} \big] \\
+&= \frac{1}{N} \frac{\partial}{\partial \bm{w}} \big[ \bm{y}^T \bm{y} - (\bm{y}^T X) \bm{w} - \bm{w}^T (X^T \bm{y}) + \bm{w}^T X^T X \bm{w} \big]~~(\text{associativity}) \\
+&= \frac{1}{N} \frac{\partial}{\partial \bm{w}} \big[ \bm{y}^T \bm{y} - {\color{magenta} \bm{w}^T (\bm{y}^T X)^T} - \bm{w}^T (X^T \bm{y}) + \bm{w}^T X^T X \bm{w} \big]~~(\text{dot product in the form of matrix mul}) \\
+&= \frac{1}{N} \frac{\partial}{\partial \bm{w}} \big[ \bm{y}^T \bm{y} - {\color{magenta} \bm{w}^T (X^T \bm{y})} - \bm{w}^T (X^T \bm{y}) + \bm{w}^T X^T X \bm{w} \big] \\
+&= \frac{1}{N} \frac{\partial}{\partial \bm{w}} \big[ \bm{y}^T \bm{y} - 2 \bm{w}^T (X^T \bm{y}) + \bm{w}^T X^T X \bm{w} \big]\\
+\end{align*}
+$$
+
+Now, we have these simple derivative rules:
+$$
+\frac{\partial}{\partial \bm{w}} \bm{w}^T \bm{a} = \bm{a},~\frac{\partial}{\partial \bm{w}} \bm{w}^T A \bm{w} = (A + A^T) \bm{w}
+$$
+
+Using these properties,
+$$
+\begin{align*}
+\frac{\partial}{\partial \bm{w}} &= \frac{1}{N} \frac{\partial}{\partial \bm{w}} 
+ \big[ - 2 X^T \bm{y} + 2 X^T X \bm{w} \big]~~(\because X^TX \text{ is symmetric})\\
+&=  - \frac{2}{N} \big[ X^T \bm{y} - X^T X \bm{w} \big] = \bm{0}\\
+\end{align*}
+$$
+Therefore,
+$$
+X^T \bm{y} - X^T X \bm{w} = \bm{0}.
+$$
+We can see it in this way as well which reminds us a form that we derived before going into matrix notation.
+$$
+X^T \left( \bm{y} - X \bm{w} \right) = \bm{0}.
+$$
+
+Solving for $\bm{w}$ gives us
+$$
+\bm{w}^* = \underbrace{{\color{magenta} \left( X^T X \right)^{-1} X^T}}_{\text{Moore-Penrose pseudoinverse}} \bm{y}
+$$
+
+---
+
+## References
+- Introduction to Machine Learning Lecture 2 (TTIC 31020; 2018)
+- [Matrix Cookbook](https://www.math.uwaterloo.ca/~hwolkowi/matrixcookbook.pdf)
+- [Jacobian matrix definition (wikipedia)](https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant)
