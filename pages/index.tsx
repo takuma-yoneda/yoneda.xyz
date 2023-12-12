@@ -92,12 +92,12 @@ const Intro = () => {
           working with <Link href="https://bstadie.github.io/">Bradly Stadie</Link> and <Link href="https://ttic.uchicago.edu/~mwalter/">Matthew R. Walter</Link>.
       </p>
       <p className='mt-2'>
-          I've published papers on LLM x Robotics (<Link href="https://statler-lm.github.io/">in-submission</Link>), 
-          RL and its generalization (<Link href="https://arxiv.org/abs/2112.08526">RSS '22</Link>, <Link href="https://proceedings.mlr.press/v202/liu23av/liu23av.pdf">ICML ‘23</Link>, <Link href="https://openreview.net/forum?id=eJ0dzPJq1F">in-submission</Link>),
-          and Diffusion Models for Robotics (<Link href="https://arxiv.org/abs/2302.12244">RSS ‘23</Link>, <Link href="https://arxiv.org/abs/2310.13914">CoRL ‘23</Link>, <Link href="https://arxiv.org/abs/2310.17649">in-submission</Link>).
+          I&apos;ve published papers on LLM x Robotics (<Link href="https://statler-lm.github.io/">in-submission</Link>), 
+          RL and its generalization (<Link href="https://arxiv.org/abs/2112.08526">RSS &apos;22</Link>, <Link href="https://proceedings.mlr.press/v202/liu23av/liu23av.pdf">ICML &apos;23</Link>, <Link href="https://openreview.net/forum?id=eJ0dzPJq1F">in-submission</Link>),
+          and Diffusion Models for Robotics (<Link href="https://arxiv.org/abs/2302.12244">RSS &apos;23</Link>, <Link href="https://arxiv.org/abs/2310.13914">CoRL &apos;23</Link>, <Link href="https://arxiv.org/abs/2310.17649">in-submission</Link>).
       </p>
       <p className='mt-2'>
-          In the past, I interned at University College London at <Link href="https://www.riedelcastro.org/">Sebastian Riedel</Link>'s group, and led a project on <Link href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=EtYv_AIAAAAJ&citation_for_view=EtYv_AIAAAAJ:u5HHmVD_uO8C">fact extraction and verification</Link>.
+          In the past, I interned at University College London at <Link href="https://www.riedelcastro.org/">Sebastian Riedel</Link>&apos;s group, and led a project on <Link href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=EtYv_AIAAAAJ&citation_for_view=EtYv_AIAAAAJ:u5HHmVD_uO8C">fact extraction and verification</Link>.
           I also interned at <Link href="https://preferred.jp/en/">Preferred Networks, Inc.</Link> and worked on Deep RL for Multi-Agent cooperation with communication.
 
           {/* In the past, I have interned at several places including <Link href="https://mr.cs.ucl.ac.uk/">UCL</Link>(2018 summer) and <Link href="https://www.preferred.jp/en/">Preferred Networks</Link> (2019 summer; PFN is best known for <Link href="https://github.com/chainer/chainer">Chainer</Link>). */}
