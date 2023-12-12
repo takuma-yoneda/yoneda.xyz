@@ -81,24 +81,38 @@ const publications = [
 const Intro = () => {
   return (
     <>
+    <div className='text-lg'>
       <p>
+          {/* I am Takuma Yoneda, a PhD student in NLP / Robotics at Toyota Technological Institute at Chicago (TTIC), located on the Univ. of Chicago campus. I’ve published papers on LLM x robotics (in submission; https://statler-lm.github.io/), RL and its generalization (RSS ‘22, ICML ‘23, in-submission), and diffusion models for robotics (RSS ‘23, CoRL ‘23, in-submission). In the past, I interned at UCL under Sebastian Riedel's group, and worked on fact extraction and verification. */}
           I am a PhD candidate at <Link href="https://ttic.edu/">TTIC</Link>
-          , an academic institute located on the campus of the <Link href="https://www.uchicago.edu/">University of Chicago</Link>.
-          My research interest lies in the intersection of Reinforcement Learning and Natural Language Processing, especially in the context of robotics.
-      </p>
-      <p>
-          In the past, I have interned at several places including <Link href="https://mr.cs.ucl.ac.uk/">UCL</Link>(2018 summer) and <Link href="https://www.preferred.jp/en/">Preferred Networks</Link> (2019 summer; PFN is best known for <Link href="https://github.com/chainer/chainer">Chainer</Link>).
-          <br />
+          , an academic institute located on the campus of the <Link href="https://www.uchicago.edu/">Univ. of Chicago</Link>.
+          My research interest includes Reinforcement Learning and Natural Language Processing, especially in the context of Robotics.
+
           I am now at <Link href="https://ttic.edu/ripl/">Robot Intelligence through Perception Lab</Link>{' '}
           working with <Link href="https://bstadie.github.io/">Bradly Stadie</Link> and <Link href="https://ttic.uchicago.edu/~mwalter/">Matthew R. Walter</Link>.
+      </p>
+      <p className='mt-2'>
+          I've published papers on LLM x Robotics (<Link href="https://statler-lm.github.io/">in-submission</Link>), 
+          RL and its generalization (<Link href="https://arxiv.org/abs/2112.08526">RSS '22</Link>, <Link href="https://proceedings.mlr.press/v202/liu23av/liu23av.pdf">ICML ‘23</Link>, <Link href="https://openreview.net/forum?id=eJ0dzPJq1F">in-submission</Link>),
+          and Diffusion Models for Robotics (<Link href="https://arxiv.org/abs/2302.12244">RSS ‘23</Link>, <Link href="https://arxiv.org/abs/2310.13914">CoRL ‘23</Link>, <Link href="https://arxiv.org/abs/2310.17649">in-submission</Link>).
+      </p>
+      <p className='mt-2'>
+          In the past, I interned at University College London at <Link href="https://www.riedelcastro.org/">Sebastian Riedel</Link>'s group, and led a project on <Link href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=EtYv_AIAAAAJ&citation_for_view=EtYv_AIAAAAJ:u5HHmVD_uO8C">fact extraction and verification</Link>.
+          I also interned at <Link href="https://preferred.jp/en/">Preferred Networks, Inc.</Link> and worked on Deep RL for Multi-Agent cooperation with communication.
+
+          {/* In the past, I have interned at several places including <Link href="https://mr.cs.ucl.ac.uk/">UCL</Link>(2018 summer) and <Link href="https://www.preferred.jp/en/">Preferred Networks</Link> (2019 summer; PFN is best known for <Link href="https://github.com/chainer/chainer">Chainer</Link>). */}
+          <br />
+          {/* I am now at <Link href="https://ttic.edu/ripl/">Robot Intelligence through Perception Lab</Link>{' '}
+          working with <Link href="https://bstadie.github.io/">Bradly Stadie</Link> and <Link href="https://ttic.uchicago.edu/~mwalter/">Matthew R. Walter</Link>. */}
           <br />
       </p>
+    </div>
       <p className='mt-2'>
         TTIC featured me recently: <Link href="https://www.ttic.edu/student-highlights/yoneda/">Takuma Yoneda - Student Highlight</Link>
       </p>
       <p className='my-6 text-xl'>
         <strong>🔥 I&apos;m on the job market now 🔥</strong><br />Please feel free to reach out: takuma (at) ttic.edu<br />
-        You can find <Link href="/takuma-yoneda-cv.pdf">my Curriculum Vitae here</Link>
+        You can find my <Link href="/takuma-yoneda-cv.pdf">Curriculum Vitae</Link> here
       </p>
         
     </>
