@@ -21,7 +21,7 @@ Let's say I run `git rm --cached garbage-file`, commit and push it.
 When another person pulls this commit, the `garbage-file` on his local machine will not be deleted.
 It simply becomes untracked.
 
-# Deleting submodule completely
+# Delete submodule completely
 https://gist.github.com/myusuf3/7f645819ded92bda6677
 ```bash
 # Remove the submodule entry from .git/config
@@ -32,4 +32,9 @@ rm -rf .git/modules/path/to/submodule
 
 # Remove the entry in .gitmodules and remove the submodule directory located at path/to/submodule
 git rm -f path/to/submodule
+```
+
+# Create an archive from a git repo
+```bash
+git archive --format tar.gz --output /full/path/to/file.tar.gz master
 ```
