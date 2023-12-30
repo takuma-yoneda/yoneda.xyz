@@ -1,0 +1,72 @@
+---
+title: "Distributions"
+categories: scratch
+date: 2023-12-20
+---
+
+# Discrete
+## Binomial distribution
+Discrete probability distribution of the number of successes/failures in a sequence of $n$ independent experiments.
+Each trial (or $n=1$) is called **Bernoulli trial** (**Bernoulli distribution**).
+
+The probability of getting $k$ successes in $n$ trials is:
+$$
+Pr(X = k) = \binom{n}{k} p^k (1-p)^{n-k}
+$$
+
+**Beta distribution** provides a *prior* for binomial distribution.
+
+## Multinomial distribution
+Multinomial distribution is a generalization of binomial distribution.
+Instead of two outcomes (success/failure), multinomial distribution considers $k$ outcomes (e.g., $k$-sided die).
+
+Each trial (or $n=1$) is called **categorical distribution**.
+
+## Poisson distribution
+- Discrete probability distribution
+- Models the number of events occurring in a fixed interval of time/space
+
+Given the average number of events per interval $\lambda$,
+the probability of observing $k$ events in a given interval is:
+$$
+P(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}
+$$
+
+
+# Continuous
+## Gaussian distribution
+Definition of Gaussian distribution (for scalar $x \in \mathbb{R}$):
+$$
+p(x; \mu, \sigma) = \frac{1}{\sigma \sqrt{2 \pi}} \exp \left( - \frac{(x - \mu)^2}{2 \sigma^2} \right)
+$$
+
+## Gaussian noise model
+In the context of (scalar) prediction, **Gaussian noise model** is
+$$
+y = f(\bm{x}; \theta) + \nu,~~\nu \sim \mathcal{N}(0, \sigma^2)
+$$
+
+$$
+p(y | \bm{x}; \theta, \sigma) = \frac{1}{\sigma \sqrt{2 \pi}} \exp \left( - \frac{(y - f(\bm{x}; \theta))^2}{2 \sigma^2} \right) 
+$$
+
+Let's think about maximizing the log-likelihood of the data $\mathcal{D} = \{(\bm{x}_i, y_i)\}_{i=1}^N$. Assuming the data is i.i.d.,
+$$
+p(\bm{y} | X; \theta, \sigma) = \prod_{i=1}^N p(y_i | \bm{x}_i; \theta, \sigma)
+$$
+
+
+$$
+\begin{align*}
+\frac{\partial}{\partial \theta} \log p(\bm{y} | X; \theta, \sigma) 
+&= \frac{\partial}{\partial \theta} \sum_{i=1}^N \log p(y_i | \bm{x}_i; \theta, \sigma) \\
+&= \frac{\partial}{\partial \theta} \sum_{i=1}^N \left[ \log \frac{1}{\sigma \sqrt{2 \pi}} - \frac{(y_i - f(\bm{x}_i; \theta))^2}{2 \sigma^2} \right] \\
+&= \frac{\partial}{\partial \theta} \sum_{i=1}^N \left[ - \frac{(y_i - f(\bm{x}_i; \theta))^2}{2 \sigma^2} \right] \\
+&= - \frac{1}{2 \sigma^2} \frac{\partial}{\partial \theta} \sum_{i=1}^N (y_i - f(\bm{x}_i; \theta))^2 \\
+\end{align*}
+$$
+
+# Others
+
+## Thomson sampling
+A heuristic for multi-armed bandit problem, addressing the exploration-exploitation dilemma.
