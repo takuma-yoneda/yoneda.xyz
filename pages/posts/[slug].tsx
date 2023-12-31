@@ -64,7 +64,7 @@ export default function Post({ post }: Props) {
   // console.log('postdata', post)
   const components = {
     h1: ({ children }: ComponentProps) => <SectionHeading>{children}</SectionHeading>,
-    h2: ({ children }: ComponentProps) => <h2 className='not-prose text-3xl'>{children}</h2>,
+    h2: ({ children }: ComponentProps) => <h2 className='not-prose text-2xl mt-6 mb-2'>{children}</h2>,
     strong: ({ children }: ComponentProps) => <strong className='not-prose font-normal'>{children}</strong>,
     ul: ({ children }: ComponentProps) => <ul className='not-prose list-disc list-inside ml-3 my-2 marker:text-zinc-500 marker:text-sm'>{children}</ul>,
     ol: ({ children }: ComponentProps) => <ol className='not-prose list-decimal list-inside ml-3 my-2'>{children}</ol>,
