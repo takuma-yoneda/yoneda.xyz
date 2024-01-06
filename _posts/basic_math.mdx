@@ -1,0 +1,89 @@
+---
+title: "Basic Math"
+categories: math
+date: 2023-08-27
+---
+
+# Quadratic Equation
+
+$$
+\begin{align*}
+ax^2 + bx + c = 0 \\
+x^2 + \frac{b}{a}x + \frac{c}{a} = 0 \\
+x^2 + \frac{b}{a}x = -\frac{c}{a} \\
+\text{Forcibly create a perfect square on the left} \\
+x^2 + \frac{b}{a}x + \big(\frac{b}{2a}\big)^2 = -\frac{c}{a} + \big(\frac{b}{2a}\big)^2 \\
+(x + \frac{b}{2a})^2 = -\frac{c}{a} + \big(\frac{b}{2a}\big)^2 \\
+(x + \frac{b}{2a})^2 = -\frac{c}{a} + \frac{b^2}{4a^2} \\
+(x + \frac{b}{2a})^2 = \frac{b^2 - 4ac}{4a^2} \\
+x + \frac{b}{2a} = \pm \sqrt{\frac{b^2 - 4ac}{4a^2}} \\
+x = -\frac{b}{2a} \pm \sqrt{\frac{b^2 - 4ac}{4a^2}} \\
+\end{align*}
+$$
+
+# Series
+## Geometric series
+$$
+\begin{align*}
+S_n &\coloneqq \sum_{i=0}^{n} ar^i \\
+    &= a + ar + ar^2 + ar^3 + \dots + ar^n \\
+    &= \frac{a(1 - r^{n+1})}{1 - r}
+\end{align*}
+$$
+
+**Derivation**:
+$$
+\begin{align*}
+S_n &= a +  &&{\color{magenta}ar + ar^2 + ar^3 + \dots + ar^n} \\
+rS_n &= &&{\color{magenta}ar + ar^2 + ar^3 + \dots + ar^n} + ar^{n+1} \\
+\end{align*}
+$$
+By subtracting the two equations, we get:
+$$
+\begin{align*}
+S_n - rS_n &= a - ar^{n+1} \\
+(1-r)S_n &= a(1 - r^{n+1}) \\
+S_n = \frac{a(1 - r^{n+1})}{1 - r}
+\end{align*}
+$$
+Notice that this only works when $r \neq 1$. For $r = 1$, the sum is simply $S_n = a(n+1)$.
+
+A good example to memorize:
+$$
+\begin{align*}
+\sum_{i=1}^{\infty} r^i &= r + r^2 + r^3 + \dots \\
+                        &= \frac{r}{1-r}
+\end{align*}
+$$
+NOTE: You can simply set `a=r` in the previous formula.
+
+### A variant:
+$$
+\begin{align*}
+S'_\infty &\coloneqq \sum_{i=0}^{\infty} i r^{i} \\
+    &= r + 2r^2 + 3r^3 + \dots + nr^n + \dots \\
+\end{align*}
+$$
+
+**Derivation**:
+$$
+\begin{align*}
+S'_\infty &= r + &&{\color{magenta}2r^2 + 3r^3 + 4r^4 + \dots + nr^n} &&&{\color{magenta}+ \dots} \\
+rS'_\infty &=    &&{\color{magenta}\hphantom{2}r^2 + 2r^3 + 3r^4 + \dots + (n-1)r^n} &&&{\color{magenta}+ nr^{n+1} + \dots }\\
+\end{align*}
+$$
+By subtracting the two equations, we get:
+
+$$
+\begin{align*}
+S'_\infty - rS'_\infty &= r + {\color{magenta}r^2 + r^3 + \dots + r^n + \dots} \\
+&= \frac{r}{1-r}
+\end{align*}
+$$
+Thus,
+$$
+\begin{align*}
+(1-r)S'_\infty &= \frac{r}{1-r} \\
+S'_\infty      &= \frac{r}{(1-r)^2}
+\end{align*}
+$$
