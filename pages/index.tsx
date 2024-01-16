@@ -29,7 +29,7 @@ const publications = [
   {"title": "Blending Imitation and Reinforcement Learning for Robust Policy Improvement",
   "authors": ["Xuefeng Liu", "Takuma Yoneda", "Matthew Walter", "Yuxin Chen", "Rick L. Stevens"],
   "url": "https://arxiv.org/abs/2310.01737",
-  "note": "In submission"},
+  "note": "ICLR 2024 (Spotlight: Top 5%)"},
   {"title": "Cold Diffusion on the Replay Buffer: Learning to Plan from Known Good States",
   "authors": ["Zidan Wang", "Takeru Oba", "Takuma Yoneda", "Rui Shen", "Matthew Walter", "Bradly C. Stadie"],
   "url": "https://arxiv.org/abs/2310.13914",
