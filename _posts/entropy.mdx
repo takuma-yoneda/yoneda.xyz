@@ -7,13 +7,13 @@ date: '2022-10-31'
 |:---------------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
 | Entropy               | $$H(P) = E_{x\sim P} [- \ln P(x)]$$                                                                                                                                              | Average of negative log probability.                                                                                   |
 | Cross-Entropy         | $$H(P, Q) = E_{x \sim P} [- \ln Q(x)]$$                                                                                                                                          | The average number of nats (cf. bits) to represent $x$ using the imperfect code defined by $Q$ (data compression view). |
-| KL Divergence         | $$\begin{aligned} KL(P, Q) &= H(P, Q) - H(P) \\ &= E_{x\sim P} [-\ln \frac{Q(x)}{P(x)}] \end{aligned}$$                                                                            | How many more nats (cf. bits) is required to represent $x$ with code $Q$ compared with the optimal code ($P$).          |
+| KL Divergence         | $$\begin{aligned} KL(P, Q) &= H(P, Q) - H(P) \\ &= E_{x\sim P} [-\ln \frac{Q(x)}{P(x)}] \end{aligned}$$                                                                            | How many more nats (cf. bits) is required to represent $x$ with code $Q$ compared with the optimal code ($P$). $P$ is called the **target** distribution.          |
 | \*Conditional Entropy | $$\begin{aligned} H(P(x\|y)) &= E_{x, y \sim P(x,y)}[-\ln \frac{P(x, y)}{P(y)}] \\ &= H(P(x, y)) - H(P(y)) \end{aligned}$$                                                         |                                                                                                                     |
 | \*Mutual Information  | $$\begin{aligned} I(x, y) &= KL(P(x, y), P(x)P(y)) \\ &= E_{x, y \sim P(x, y)}[-\ln\frac{P(x)P(y)}{P(x, y)}] \\ &= H(P(y)) - H(P(y \| x)) \\ &= H(P(x)) - H(P(x \| y)) \end{aligned}$$ | How much knowing $x$ helps to know $y$.                                                                              |
 
 
 <br />
-KL Divergence is always non-negative (hence MI also is):
+KL Divergence is always non-negative (hence MI also is)
 
 $$
 \begin{align*}
@@ -33,6 +33,147 @@ KL(P, Q) &= {\color{blue}\mathbb{E}_{x \sim P}} [{\color{brown}- \ln} \frac{Q(x)
 $$
 </Collapse>
 
+## Example: Binary classification
+Let's say we do a coin-toss (biased coin). The coin can take either Head or Tail.
+We want to obtain a model that predicts if the coin gives Head or Tail.
+
+Using a random variable $x$, we can write each event as $x = H$ or $x = T$.
+Let's define our model:
+$$
+Q(x) \coloneqq
+\begin{cases}
+p & (x = H) \\
+1 - p & (x = T)
+\end{cases},
+$$
+where $0 \leq p \leq 1$ is a parameter that the model learns.
+
+
+**Entropy**  
+Although this is not a standard path to take, but let's compute the entropy of $Q$.
+$$
+\begin{align}
+H(Q)    &= \mathbb{E}_{x \sim Q} [-\ln Q(x)] \\
+        &= \sum_{x \in \{H, T\}} - Q(x) \ln Q(x) \\
+        &= -Q(x = H) \ln Q(x = H) - Q(x = T) \ln Q(x = T) \\
+        &= -p \ln p - (1 - p) \ln (1 - p)
+\end{align}
+$$
+
+Now, what is max and min of this entropy??
+
+<Collapse title="Think about xlogx">
+Can you compute $\lim_{x \rightarrow +0} x \ln x$?
+
+$$
+x \ln x = \frac{\ln x}{1/x}
+$$
+Using L'Hopital's rule, we can compute the limit:
+$$
+\lim_{x \rightarrow +0} \frac{\ln x}{1/x} = \lim_{x \rightarrow +0} \frac{1/x}{-1/x^2} = \lim_{x \rightarrow +0} -x = 0
+$$
+What is $\frac{d}{dx}(x \ln x)$?
+$$
+\frac{d}{dx}(x \ln x) = \ln x + x \cdot \frac{1}{x} = \ln x + 1
+$$
+
+Thus,
+- $x \ln x$ starts at $(x, y) = (0, 0)$ with slope $-\infty$
+- $\searrow$ As we increase $x$, the $y$-value goes down and reaches the minimum at $x = e^{-1}$
+- $\nearrow$ As we increase $x$ further, the $y$-value goes up and reaches $0$ again at $x = 1$
+
+</Collapse>
+
+👉 **Shape of the entropy w.r.t. $p$**  
+What does $-p \ln p - (1-p) \ln (1-p)$ look like? We can have a few observations about the form of equation,
+and make a guess.
+- There is a symmetry ($-\blacktriangle \ln \blacktriangle$)
+- $- p \ln p$ is a convex function (imagine its shape)
+- Adding two convex functions gives a new convex function
+- Given that the symmetry is around $p = 1/2$ ($p~$ vs $~1 - p~$ in ($0 \geq p \geq 1$)),  
+ the maximum should occur at $p = 1/2$
+
+
+**Cross-entropy: The first thing to try**  
+Now, let's try to define cross-entropy for the target distribution $P(x)$.
+Cross entropy is:
+$$
+\begin{align}
+H(P, Q) &\coloneqq \mathbb{E}_{x \sim P} \big[-\ln Q(x) \big] \\
+        &= \sum_{x \in \{H, T\}} - P(x) \ln Q(x) \\
+        &= -P(x = H) \ln Q(x = H) - P(x = T) \ln Q(x = T) \\
+        &= -P(x = H) \ln p - P(x = T) \ln (1 - p)
+\end{align}
+$$
+
+Now, what should the target distribution $P(x)$ look like?
+Woah, this is such a non-standard quenstion, but let's do it anyway.
+
+Let's say this is the target distribution that is unknown to the model:
+$$
+P(x) \coloneqq
+\begin{cases}
+p^\textrm{tgt} & (x = H) \\
+1 - p^\textrm{tgt} & (x = T)
+\end{cases},
+$$
+Then, the cross entropy would be
+$$
+\begin{align}
+H(P, Q) &= -P(x = H) \ln p - P(x = T) \ln (1 - p) \\
+        &= -{\color{magenta}p^\textrm{tgt}} \ln p - (1 - {\color{magenta}p^\textrm{tgt}}) \ln (1 - p)
+\end{align}
+$$
+I guess we can try to maximize this w.r.t. $p$. That should give us $p = p^\textrm{tgt}$ in the end...
+
+
+👉 **Cross-entropy: a rather standard thing to do**  
+Okay, finally something that is a very standard question to ask.
+Given a dataset that stores actuall events observed $\mathcal{D} = \{(x'=T),~(x'=H),~(x'=H),~\cdots\}$,
+what does the empirical cross entropy look like?
+In this case, let's define empirical target distribution **for each sample** (why does that make sense?).
+
+- When the sample is $x' = H$:     $P(x) \coloneqq 1 \text{ if } x = H, \text{ else } 0$.
+- When the sample with $x' = T$:      $P(x) \coloneqq 1 \text{ if } x = T, \text{ else } 0$.
+- Note that this is a **mapping from a single sample $x'$ to a distribution $P(x)$**.
+    - But why can we change the (target) distribution $P(x)$ for each sample? How is that reasonable...?
+
+With these,
+$$
+\begin{align}
+H(P, Q) &\coloneqq \mathbb{E}_{x \sim P} \big[-\ln Q(x) \big] \\
+        &= \sum_{x' \in \mathcal{D}} - P(x') \ln Q(x') \\
+        &= \sum_{x' \in \mathcal{D}} - P(x=x') \ln Q(x=x') \\
+        &= \sum_{x' \in \mathcal{D}}
+        \begin{cases}
+        - P(x=H) \ln Q(x=H) & \text{if } x' = H \\
+        - P(x=T) \ln Q(x=T) & \text{if } x' = T
+        \end{cases} \\
+        &= \sum_{x' \in \mathcal{D}}
+        \begin{cases}
+        - \ln p & \text{if } x' = H \\
+        - \ln (1-p) & \text{if } x' = T
+        \end{cases}.
+\end{align}
+$$
+We can end this here. But a weird trick that people always do is to simplify this using a binary label $y$.
+Let's define $y$ as
+$$
+y' \coloneqq
+\begin{cases}
+1 & \text{if } x' = H \\
+0 & \text{if } x' = T
+\end{cases}.
+$$
+Then, we can write the above as
+$$
+H(P, Q) = \sum_{x' \in \mathcal{D}} - y' \ln p - (1-y') \ln (1 - p).
+$$
+Notice that only one of these two terms will be non-zero for each $x'$.
+Personally, I hate this simple form as this makes it look unnecessarily complicated,
+but this is a standard formulation that people often have.
+
+Notice that we are summing over the data samples, not the all possible values of $x$.
 
 ## Reference
 - [TTIC 31230: Fundamentals of Deep Learning](https://mcallester.github.io/ttic-31230/)
