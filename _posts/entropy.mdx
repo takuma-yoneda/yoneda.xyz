@@ -49,7 +49,7 @@ $$
 where $0 \leq p \leq 1$ is a parameter that the model learns.
 
 
-**Entropy**  
+👉 **Entropy**  
 Although this is not a standard path to take, but let's compute the entropy of $Q$.
 $$
 \begin{align}
@@ -60,10 +60,20 @@ H(Q)    &= \mathbb{E}_{x \sim Q} [-\ln Q(x)] \\
 \end{align}
 $$
 
-Now, what is max and min of this entropy??
+Now, what is max and min of this entropy?
+To find that out, let's think about the shape of $-p \ln p - (1 - p) \ln (1 - p)$.
+
+**Shape of the entropy w.r.t. $p$**  
+What does $-p \ln p - (1-p) \ln (1-p)$ look like? We can have a few observations about the form of equation,
+and make a guess.
+- There is a symmetry ($-\blacktriangle \ln \blacktriangle$)
+- $- p \ln p$ is a convex function (imagine its shape)
+- Adding two convex functions gives a new convex function
+- Given that the symmetry is around $p = 1/2$ ($p~$ vs $~1 - p~$ in ($0 \leq p \leq 1$)),  
+ the maximum should occur at $p = 1/2$
 
 <Collapse title="Think about xlogx">
-Can you compute $\lim_{x \rightarrow +0} x \ln x$?
+Can we compute $\lim_{x \rightarrow +0} x \ln x$?
 
 $$
 x \ln x = \frac{\ln x}{1/x}
@@ -81,20 +91,17 @@ Thus,
 - $x \ln x$ starts at $(x, y) = (0, 0)$ with slope $-\infty$
 - $\searrow$ As we increase $x$, the $y$-value goes down and reaches the minimum at $x = e^{-1}$
 - $\nearrow$ As we increase $x$ further, the $y$-value goes up and reaches $0$ again at $x = 1$
-
 </Collapse>
 
-👉 **Shape of the entropy w.r.t. $p$**  
-What does $-p \ln p - (1-p) \ln (1-p)$ look like? We can have a few observations about the form of equation,
-and make a guess.
-- There is a symmetry ($-\blacktriangle \ln \blacktriangle$)
-- $- p \ln p$ is a convex function (imagine its shape)
-- Adding two convex functions gives a new convex function
-- Given that the symmetry is around $p = 1/2$ ($p~$ vs $~1 - p~$ in ($0 \geq p \geq 1$)),  
- the maximum should occur at $p = 1/2$
+As a result:
+- Min: $H(Q) = 0$ when $p = 0$ or $p = 1$.
+- Max: $H(Q) = \ln 2$ when $p = 1/2$.
+
+What does this mean? (How to interpret this?)  
+Can we see it as perplexity (?): $\exp{(\ln 2)} = 2$ -> Two possible outcomes...
 
 
-**Cross-entropy: The first thing to try**  
+👉 **Cross-entropy: The first thing to try**  
 Now, let's try to define cross-entropy for the target distribution $P(x)$.
 Cross entropy is:
 $$
@@ -117,6 +124,7 @@ p^\textrm{tgt} & (x = H) \\
 1 - p^\textrm{tgt} & (x = T)
 \end{cases},
 $$
+
 Then, the cross entropy would be
 $$
 \begin{align}
@@ -125,6 +133,7 @@ H(P, Q) &= -P(x = H) \ln p - P(x = T) \ln (1 - p) \\
 \end{align}
 $$
 I guess we can try to maximize this w.r.t. $p$. That should give us $p = p^\textrm{tgt}$ in the end...
+But again, this is quite a non-standard way to go.
 
 
 👉 **Cross-entropy: a rather standard thing to do**  
@@ -171,7 +180,7 @@ H(P, Q) = \sum_{x' \in \mathcal{D}} - y' \ln p - (1-y') \ln (1 - p).
 $$
 Notice that only one of these two terms will be non-zero for each $x'$.
 Personally, I hate this simple form as this makes it look unnecessarily complicated,
-but this is a standard formulation that people often have.
+but this is a standard formulation that people commonly use.
 
 Notice that we are summing over the data samples, not the all possible values of $x$.
 
