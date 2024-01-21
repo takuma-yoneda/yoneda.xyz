@@ -93,12 +93,13 @@ const Intro = () => {
       </p>
       <p className='mt-2'>
           I&apos;ve published papers on LLM x Robotics (<Link href="https://statler-lm.github.io/">in-submission</Link>), 
-          RL and its generalization (<Link href="https://arxiv.org/abs/2112.08526">RSS &apos;22</Link>, <Link href="https://proceedings.mlr.press/v202/liu23av/liu23av.pdf">ICML &apos;23</Link>, <Link href="https://openreview.net/forum?id=eJ0dzPJq1F">in-submission</Link>),
+          Bridging domain gaps in RL (<Link href="https://arxiv.org/abs/2112.08526">RSS &apos;22</Link>, <Link href="https://arxiv.org/abs/2105.02087">RA-L &apos;21</Link>), 
+          RL theory (<Link href="https://proceedings.mlr.press/v202/liu23av/liu23av.pdf">ICML &apos;23</Link>, <Link href="https://openreview.net/forum?id=eJ0dzPJq1F">ICLR &apos;24</Link>),
           and Diffusion Models for Robotics (<Link href="https://arxiv.org/abs/2302.12244">RSS &apos;23</Link>, <Link href="https://arxiv.org/abs/2310.13914">CoRL &apos;23</Link>, <Link href="https://arxiv.org/abs/2310.17649">in-submission</Link>).
       </p>
       <p className='mt-2'>
           In the past, I interned at University College London at <Link href="https://www.riedelcastro.org/">Sebastian Riedel</Link>&apos;s group, and led a project on <Link href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=EtYv_AIAAAAJ&citation_for_view=EtYv_AIAAAAJ:u5HHmVD_uO8C">fact extraction and verification</Link>.
-          I also interned at <Link href="https://preferred.jp/en/">Preferred Networks, Inc.</Link> and worked on Deep RL for Multi-Agent cooperation with communication.
+          I also interned at <Link href="https://preferred.jp/en/">Preferred Networks, Inc.</Link> and worked on Deep RL for multi-agent cooperation with communication.
 
           {/* In the past, I have interned at several places including <Link href="https://mr.cs.ucl.ac.uk/">UCL</Link>(2018 summer) and <Link href="https://www.preferred.jp/en/">Preferred Networks</Link> (2019 summer; PFN is best known for <Link href="https://github.com/chainer/chainer">Chainer</Link>). */}
           <br />
