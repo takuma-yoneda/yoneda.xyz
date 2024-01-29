@@ -18,14 +18,14 @@ interface RenderAuthorsProps {
 }
 
 const publications = [
-  {"title": "Statler: STATe-maintaining Language models for Embodied Reasoning",
-  "authors": ["Takuma Yoneda*", "Jiading Fang*", "Peng Li*", "Huanyu Zhang*", "Tianchong Jiang", "Ben Picker", "David Yunis", "Shengjie Lin", "Luzhe Sun", "Richard Xu", "Hongyuan Mei", "Matthew Walter"],
-  "note": "In submission",
-  "url": "http://arxiv.org/abs/2306.17840"},
   {"title": "6-DoF Stability Field via Diffusion Models",
   "authors": ["Takuma Yoneda*", "Tianchong Jiang*", "Gregory Shakhnarovich", "Matthew R. Walter"],
   "url": "https://arxiv.org/abs/2310.17649",
   "note": "In submission"},
+  {"title": "Statler: STATe-maintaining Language models for Embodied Reasoning",
+  "authors": ["Takuma Yoneda*", "Jiading Fang*", "Peng Li*", "Huanyu Zhang*", "Tianchong Jiang", "Ben Picker", "David Yunis", "Shengjie Lin", "Luzhe Sun", "Richard Xu", "Hongyuan Mei", "Matthew Walter"],
+  "note": "To appear at ICRA 2024",
+  "url": "http://arxiv.org/abs/2306.17840"},
   {"title": "Blending Imitation and Reinforcement Learning for Robust Policy Improvement",
   "authors": ["Xuefeng Liu", "Takuma Yoneda", "Matthew Walter", "Yuxin Chen", "Rick L. Stevens"],
   "url": "https://arxiv.org/abs/2310.01737",
@@ -92,7 +92,7 @@ const Intro = () => {
           working with <Link href="https://bstadie.github.io/">Bradly Stadie</Link> and <Link href="https://ttic.uchicago.edu/~mwalter/">Matthew R. Walter</Link>.
       </p>
       <p className='mt-2'>
-          I&apos;ve published papers on LLM x Robotics (<Link href="https://statler-lm.github.io/">in-submission</Link>), 
+          I&apos;ve published papers on LLM x Robotics (<Link href="https://statler-lm.github.io/">ICRA &apos;24</Link>), 
           Bridging domain gaps in RL (<Link href="https://arxiv.org/abs/2112.08526">RSS &apos;22</Link>, <Link href="https://arxiv.org/abs/2105.02087">RA-L &apos;21</Link>), 
           RL theory (<Link href="https://proceedings.mlr.press/v202/liu23av/liu23av.pdf">ICML &apos;23</Link>, <Link href="https://openreview.net/forum?id=eJ0dzPJq1F">ICLR &apos;24</Link>),
           and Diffusion Models for Robotics (<Link href="https://arxiv.org/abs/2302.12244">RSS &apos;23</Link>, <Link href="https://arxiv.org/abs/2310.13914">CoRL &apos;23</Link>, <Link href="https://arxiv.org/abs/2310.17649">in-submission</Link>).
