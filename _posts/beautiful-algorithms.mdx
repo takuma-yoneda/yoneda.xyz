@@ -1,0 +1,24 @@
+---
+title: "Beautiful Algorithms"
+categories: notes scratch
+date: '2024-01-29'
+---
+
+## Prefix sum
+Given an array of integers, return the total number of subarrays whose sum is $k$.  
+[LeetCode 560. Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/)
+```python
+def solve(nums: List[int], target_sum: int) -> int:
+    prefix_sum = {0: 1}  # {prefix_sum: count}
+    sum = 0
+    counter = 0
+    for num in nums:
+        sum += num  # Running sum
+        overshoot = sum - target_sum  # How much we overshot from the target sum
+        if overshoot in prefix_sum:  # If True, there was a prefix subarray that can offset the overshoot!!
+            counter += prefix_sum[overshoot]
+
+        # Always update the prefix sum at the end!
+        prefix_sum[sum] = prefix_sum.get(sum, 0) + 1
+    return counter
+```
